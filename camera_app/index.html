@@ -5,10 +5,8 @@
 
     <meta
         name="viewport"
-        content="width=device-width,
-                 initial-scale=1,
-                 maximum-scale=1,
-                 user-scalable=no"
+        content="width=device-width, initial-scale=1,
+                 maximum-scale=1, user-scalable=no"
     >
 
     <title>Branch Photo Control</title>
@@ -26,11 +24,11 @@
             padding: 0;
             width: 100%;
             min-height: 100%;
+            background: #111;
         }
 
         body {
-            background: #111;
-            color: #fff;
+            color: white;
             font-family: Arial, sans-serif;
         }
 
@@ -44,33 +42,45 @@
         h1 {
             text-align: center;
             font-size: 25px;
-            margin: 5px 0 14px;
+            margin: 5px 0 16px;
         }
 
         .branch {
             background: #222;
             border-radius: 14px;
             padding: 18px;
-            margin-bottom: 18px;
+            margin-bottom: 14px;
             text-align: center;
             font-size: 18px;
         }
 
-        video,
-        #preview {
+        .loading {
+            text-align: center;
+            color: #aaa;
+            margin: 12px 0;
+            min-height: 25px;
+            line-height: 1.5;
+        }
+
+        .camera-box {
             width: 100%;
-            display: block;
-            border-radius: 15px;
             background: #000;
+            border-radius: 15px;
+            overflow: hidden;
         }
 
         video {
-            min-height: 250px;
+            width: 100%;
+            min-height: 280px;
+            display: block;
+            background: #000;
             object-fit: cover;
         }
 
         #preview {
+            width: 100%;
             display: none;
+            background: #000;
         }
 
         canvas {
@@ -85,12 +95,12 @@
             margin-top: 14px;
             font-size: 18px;
             font-weight: bold;
-            color: #fff;
+            color: white;
             cursor: pointer;
         }
 
         button:disabled {
-            opacity: 0.5;
+            opacity: .5;
             cursor: not-allowed;
         }
 
@@ -110,13 +120,13 @@
 
         textarea {
             width: 100%;
-            min-height: 110px;
+            min-height: 100px;
             margin-top: 14px;
             padding: 15px;
             border-radius: 14px;
             border: 1px solid #444;
             background: #222;
-            color: #fff;
+            color: white;
             font-size: 17px;
             resize: vertical;
             display: none;
@@ -148,20 +158,30 @@
             line-height: 1.5;
         }
 
-        .loading {
-            text-align: center;
-            color: #aaa;
-            margin: 15px 0;
-            min-height: 24px;
-            line-height: 1.5;
-        }
-
-        .small {
+        .debug {
             color: #777;
             text-align: center;
             font-size: 12px;
             margin-top: 10px;
             word-break: break-word;
+        }
+
+        .fallback {
+            display: none;
+            margin-top: 12px;
+            text-align: center;
+        }
+
+        .fallback label {
+            display: block;
+            background: #333;
+            border-radius: 12px;
+            padding: 14px;
+            cursor: pointer;
+        }
+
+        #fileInput {
+            display: none;
         }
     </style>
 </head>
@@ -174,42 +194,49 @@
 
     <div class="branch">
         🏢 Филиал:
-        <strong id="branchName">
-            Юкланмоқда...
-        </strong>
+        <strong id="branchName">Юкланмоқда...</strong>
     </div>
 
     <div id="loading" class="loading">
         Telegram маълумотлари текширилмоқда...
     </div>
 
-    <video
-        id="camera"
-        autoplay
-        playsinline
-        muted>
-    </video>
+    <div class="camera-box">
+
+        <video
+            id="camera"
+            autoplay
+            playsinline
+            muted>
+        </video>
+
+        <img
+            id="preview"
+            alt="Captured photo"
+        >
+
+    </div>
 
     <canvas id="canvas"></canvas>
 
-    <img
-        id="preview"
-        alt="Captured photo"
-    >
-
-    <button id="takePhoto" disabled>
+    <button
+        id="takePhoto"
+        disabled>
         📸 РАСМГА ОЛИШ
+    </button>
+
+    <button id="retake">
+        🔄 ҚАЙТА ОЛИШ
     </button>
 
     <textarea
         id="comment"
-        placeholder="Изоҳ киритинг..."
-    ></textarea>
+        placeholder="Изоҳ киритинг...">
+    </textarea>
 
     <div
         class="info"
-        id="photoInfo"
-    >
+        id="photoInfo">
 
         <div>
             🏢 Филиал:
@@ -228,10 +255,6 @@
 
     </div>
 
-    <button id="retake">
-        🔄 ҚАЙТА ОЛИШ
-    </button>
-
     <button id="submit">
         ✅ ЮБОРИШ
     </button>
@@ -248,10 +271,28 @@
 
     <div
         id="debug"
-        class="small">
+        class="debug">
+    </div>
+
+    <div
+        id="fallback"
+        class="fallback">
+
+        <label for="fileInput">
+            📷 Телефондан расм танлаш
+        </label>
+
+        <input
+            id="fileInput"
+            type="file"
+            accept="image/*"
+            capture="environment"
+        >
+
     </div>
 
 </div>
+
 
 <script>
 
@@ -259,7 +300,7 @@
 
 
 /* =========================================================
-   TELEGRAM MINI APP
+   TELEGRAM
 ========================================================= */
 
 const tg =
@@ -274,13 +315,13 @@ if (tg) {
     try {
         tg.ready();
     } catch (e) {
-        console.error("tg.ready error:", e);
+        console.error(e);
     }
 
     try {
         tg.expand();
     } catch (e) {
-        console.error("tg.expand error:", e);
+        console.error(e);
     }
 }
 
@@ -354,6 +395,12 @@ const successBox =
 const debug =
     document.getElementById("debug");
 
+const fallback =
+    document.getElementById("fallback");
+
+const fileInput =
+    document.getElementById("fileInput");
+
 
 /* =========================================================
    ERROR
@@ -364,7 +411,6 @@ function showError(text) {
     errorBox.textContent = text;
 
     successBox.textContent = "";
-
 }
 
 
@@ -377,80 +423,11 @@ function showSuccess(text) {
     successBox.textContent = text;
 
     errorBox.textContent = "";
-
 }
 
 
 /* =========================================================
-   DATE / TIME
-========================================================= */
-
-function getDateTime() {
-
-    const now = new Date();
-
-    const date =
-        String(now.getDate()).padStart(2, "0")
-        + "."
-        +
-        String(now.getMonth() + 1).padStart(2, "0")
-        + "."
-        +
-        now.getFullYear();
-
-    const time =
-        String(now.getHours()).padStart(2, "0")
-        + ":"
-        +
-        String(now.getMinutes()).padStart(2, "0")
-        + ":"
-        +
-        String(now.getSeconds()).padStart(2, "0");
-
-    return {
-        date: date,
-        time: time
-    };
-}
-
-
-/* =========================================================
-   FETCH WITH TIMEOUT
-========================================================= */
-
-function fetchWithTimeout(
-    url,
-    options = {},
-    timeout = 12000
-) {
-
-    const controller =
-        new AbortController();
-
-    const timer =
-        setTimeout(
-            function () {
-                controller.abort();
-            },
-            timeout
-        );
-
-    return fetch(
-        url,
-        {
-            ...options,
-            signal: controller.signal
-        }
-    ).finally(
-        function () {
-            clearTimeout(timer);
-        }
-    );
-}
-
-
-/* =========================================================
-   GET TELEGRAM INIT DATA
+   TELEGRAM INIT DATA
 ========================================================= */
 
 function getTelegramInitData() {
@@ -476,6 +453,70 @@ function getTelegramInitData() {
 
 
 /* =========================================================
+   DATE TIME
+========================================================= */
+
+function getDateTime() {
+
+    const now = new Date();
+
+    const date =
+        String(now.getDate()).padStart(2, "0")
+        + "."
+        +
+        String(now.getMonth() + 1).padStart(2, "0")
+        + "."
+        +
+        now.getFullYear();
+
+    const time =
+        String(now.getHours()).padStart(2, "0")
+        + ":"
+        +
+        String(now.getMinutes()).padStart(2, "0")
+        + ":"
+        +
+        String(now.getSeconds()).padStart(2, "0");
+
+    return {
+        date,
+        time
+    };
+}
+
+
+/* =========================================================
+   FETCH TIMEOUT
+========================================================= */
+
+function fetchWithTimeout(
+    url,
+    options = {},
+    timeout = 15000
+) {
+
+    const controller =
+        new AbortController();
+
+    const timer =
+        setTimeout(
+            () => controller.abort(),
+            timeout
+        );
+
+    return fetch(
+        url,
+        {
+            ...options,
+            signal: controller.signal
+        }
+    ).finally(
+        () => clearTimeout(timer)
+    );
+}
+
+
+/* =========================================================
    LOAD USER
 ========================================================= */
 
@@ -486,27 +527,26 @@ async function initAndLoadUser() {
         loading.style.display = "none";
 
         showError(
-            "❌ Бу саҳифа Telegram Mini App ичида очилиши керак."
+            "❌ Mini App Telegram ичида очилиши керак."
         );
-
-        takePhoto.disabled = true;
 
         return;
     }
 
 
-    /*
-       Telegram баъзи қурилмаларда initData ни
-       script ишга тушган биринчи миллисекундда бермаслиги мумкин.
+    loading.textContent =
+        "🔐 Telegram маълумотлари олинмоқда...";
 
-       Шунинг учун бир неча марта текширамиз.
+
+    /*
+       Telegram initData баъзи қурилмаларда
+       бироз кеч келиши мумкин.
     */
 
-    let attempts = 0;
-
-    while (
-        attempts < 10 &&
-        !telegramInitData
+    for (
+        let i = 0;
+        i < 15;
+        i++
     ) {
 
         telegramInitData =
@@ -516,23 +556,15 @@ async function initAndLoadUser() {
             break;
         }
 
-        attempts++;
-
         await new Promise(
-            function (resolve) {
-                setTimeout(resolve, 300);
-            }
+            resolve =>
+                setTimeout(resolve, 300)
         );
     }
 
 
     console.log(
-        "Telegram WebApp:",
-        tg
-    );
-
-    console.log(
-        "initData length:",
+        "INIT DATA LENGTH:",
         telegramInitData.length
     );
 
@@ -543,10 +575,8 @@ async function initAndLoadUser() {
 
         showError(
             "❌ Telegram маълумотлари келмади. " +
-            "Mini App'ни ботдаги 📸 РАСМГА ОЛИШ тугмаси орқали очинг."
+            "Ботдаги 📸 РАСМГА ОЛИШ тугмаси орқали очинг."
         );
-
-        takePhoto.disabled = true;
 
         return;
     }
@@ -571,29 +601,27 @@ async function initAndLoadUser() {
 
                     cache: "no-store"
                 },
-                12000
+                15000
             );
 
 
         let data;
-
 
         try {
 
             data =
                 await response.json();
 
-        } catch (error) {
+        } catch {
 
             throw new Error(
                 "Сервердан нотўғри жавоб келди."
             );
-
         }
 
 
         console.log(
-            "API /me:",
+            "API ME:",
             data
         );
 
@@ -614,36 +642,47 @@ async function initAndLoadUser() {
             data.user;
 
 
-        branchName.textContent =
-            employee.branchName;
+        /*
+           Backend branchName ёки
+           branch_name қайтариши мумкин.
+        */
 
+        const branch =
+            employee.branchName ||
+            employee.branch_name ||
+            "Номаълум филиал";
+
+
+        branchName.textContent =
+            branch;
 
         infoBranch.textContent =
-            employee.branchName;
+            branch;
+
+
+        loading.textContent =
+            "📷 Камера ишга туширилмоқда...";
+
+
+        await startCamera();
 
 
         loading.style.display =
             "none";
 
-
         takePhoto.disabled =
             false;
-
 
         showSuccess(
             "✅ Филиал аниқланди."
         );
 
-
         setTimeout(
-            function () {
+            () => {
                 successBox.textContent = "";
             },
             2000
         );
-
-
-        await startCamera();
 
     }
 
@@ -654,7 +693,6 @@ async function initAndLoadUser() {
             error
         );
 
-
         loading.style.display =
             "none";
 
@@ -664,27 +702,19 @@ async function initAndLoadUser() {
         ) {
 
             showError(
-                "❌ Серверга уланиш вақти тугади. " +
-                "Mini App'ни ёпиб қайта очинг."
+                "❌ Серверга уланиш вақти тугади."
             );
 
-        }
-
-        else {
+        } else {
 
             showError(
                 "❌ " +
                 (
                     error.message ||
-                    "Сервер билан боғланишда хатолик."
+                    "Хатолик юз берди."
                 )
             );
-
         }
-
-
-        takePhoto.disabled =
-            true;
     }
 }
 
@@ -702,11 +732,12 @@ async function startCamera() {
             !navigator.mediaDevices.getUserMedia
         ) {
 
-            showError(
-                "❌ Бу қурилмада камера API ишламайди."
-            );
+            fallback.style.display =
+                "block";
 
-            return;
+            throw new Error(
+                "Бу браузерда камера API ишламайди. Телефондан расм танланг."
+            );
         }
 
 
@@ -715,35 +746,63 @@ async function startCamera() {
             stream
                 .getTracks()
                 .forEach(
-                    function (track) {
-                        track.stop();
-                    }
+                    track => track.stop()
                 );
 
             stream = null;
         }
 
 
-        stream =
-            await navigator.mediaDevices.getUserMedia(
-                {
-                    video: {
-                        facingMode: {
-                            ideal: "environment"
+        /*
+           Аввал орқа камерани сўраймиз.
+        */
+
+        try {
+
+            stream =
+                await navigator.mediaDevices.getUserMedia(
+                    {
+                        video: {
+                            facingMode: {
+                                ideal: "environment"
+                            },
+
+                            width: {
+                                ideal: 1920
+                            },
+
+                            height: {
+                                ideal: 1080
+                            }
                         },
 
-                        width: {
-                            ideal: 1920
-                        },
+                        audio: false
+                    }
+                );
 
-                        height: {
-                            ideal: 1080
-                        }
-                    },
+        }
 
-                    audio: false
-                }
+        catch (firstError) {
+
+            console.warn(
+                "ENVIRONMENT CAMERA FAILED:",
+                firstError
             );
+
+
+            /*
+               Агар орқа камера ишламаса,
+               оддий камерани сўраймиз.
+            */
+
+            stream =
+                await navigator.mediaDevices.getUserMedia(
+                    {
+                        video: true,
+                        audio: false
+                    }
+                );
+        }
 
 
         camera.srcObject =
@@ -751,6 +810,18 @@ async function startCamera() {
 
 
         await camera.play();
+
+
+        camera.style.display =
+            "block";
+
+        fallback.style.display =
+            "none";
+
+
+        console.log(
+            "CAMERA STARTED"
+        );
 
     }
 
@@ -762,9 +833,12 @@ async function startCamera() {
         );
 
 
-        showError(
-            "❌ Камерага рухсат берилмади. " +
-            "Telegram камера рухсатини ёқинг."
+        fallback.style.display =
+            "block";
+
+
+        throw new Error(
+            "❌ Камера очилмади. Telegram/браузерда камерага рухсат беринг ёки пастдаги расм танлашни ишлатинг."
         );
     }
 }
@@ -798,7 +872,7 @@ takePhoto.addEventListener(
         if (!stream) {
 
             showError(
-                "❌ Камера ҳали тайёр эмас."
+                "❌ Камера тайёр эмас."
             );
 
             return;
@@ -812,10 +886,13 @@ takePhoto.addEventListener(
             camera.videoHeight;
 
 
-        if (!width || !height) {
+        if (
+            !width ||
+            !height
+        ) {
 
             showError(
-                "❌ Камера тасвири тайёр эмас."
+                "❌ Камера тасвири ҳали тайёр эмас."
             );
 
             return;
@@ -863,9 +940,9 @@ takePhoto.addEventListener(
             dt.time;
 
 
-        /* =================================================
+        /*
            WATERMARK
-        ================================================= */
+        */
 
         const boxHeight =
             Math.max(
@@ -928,36 +1005,37 @@ takePhoto.addEventListener(
             padding +
             lineHeight;
 
-
         const y2 =
             y1 +
             lineHeight;
-
 
         const y3 =
             y2 +
             lineHeight;
 
 
+        const branch =
+            employee.branchName ||
+            employee.branch_name ||
+            "Номаълум";
+
+
         ctx.fillText(
-            "Branch: " +
-            employee.branchName,
+            "Branch: " + branch,
             padding,
             y1
         );
 
 
         ctx.fillText(
-            "Date: " +
-            captureDate,
+            "Date: " + captureDate,
             padding,
             y2
         );
 
 
         ctx.fillText(
-            "Time: " +
-            captureTime,
+            "Time: " + captureTime,
             padding,
             y3
         );
@@ -1002,14 +1080,12 @@ takePhoto.addEventListener(
                 preview.dataset.objectUrl =
                     objectUrl;
 
-
                 preview.src =
                     objectUrl;
 
 
                 camera.style.display =
                     "none";
-
 
                 preview.style.display =
                     "block";
@@ -1018,38 +1094,30 @@ takePhoto.addEventListener(
                 takePhoto.style.display =
                     "none";
 
-
                 retake.style.display =
                     "block";
-
 
                 submit.style.display =
                     "block";
 
-
                 comment.style.display =
                     "block";
-
 
                 photoInfo.style.display =
                     "block";
 
 
                 infoBranch.textContent =
-                    employee.branchName;
-
+                    branch;
 
                 infoDate.textContent =
                     captureDate;
-
 
                 infoTime.textContent =
                     captureTime;
 
             },
-
             "image/jpeg",
-
             0.92
         );
     }
@@ -1083,7 +1151,6 @@ retake.addEventListener(
         preview.src =
             "";
 
-
         preview.style.display =
             "none";
 
@@ -1095,18 +1162,14 @@ retake.addEventListener(
         takePhoto.style.display =
             "block";
 
-
         retake.style.display =
             "none";
-
 
         submit.style.display =
             "none";
 
-
         comment.style.display =
             "none";
-
 
         photoInfo.style.display =
             "none";
@@ -1119,16 +1182,22 @@ retake.addEventListener(
         errorBox.textContent =
             "";
 
-
         successBox.textContent =
             "";
 
 
-        debug.textContent =
-            "";
+        try {
 
+            await startCamera();
 
-        await startCamera();
+        }
+
+        catch (error) {
+
+            showError(
+                error.message
+            );
+        }
     }
 );
 
@@ -1177,7 +1246,6 @@ submit.addEventListener(
         submit.disabled =
             true;
 
-
         submit.textContent =
             "⏳ ЮБОРИЛМОҚДА...";
 
@@ -1188,32 +1256,12 @@ submit.addEventListener(
         successBox.textContent =
             "";
 
-        debug.textContent =
-            "";
-
 
         try {
-
-            /*
-             * MUHIM:
-             *
-             * bot.py:
-             *     await request.multipart()
-             *
-             * кутаяпти.
-             *
-             * Шунинг учун JSON эмас,
-             * FormData юборамиз.
-             */
-
 
             const formData =
                 new FormData();
 
-
-            /*
-             * photo
-             */
 
             formData.append(
                 "photo",
@@ -1222,29 +1270,17 @@ submit.addEventListener(
             );
 
 
-            /*
-             * comment
-             */
-
             formData.append(
                 "comment",
                 comment.value.trim()
             );
 
 
-            /*
-             * deviceTimestamp
-             */
-
             formData.append(
                 "deviceTimestamp",
                 new Date().toISOString()
             );
 
-
-            /*
-             * POST
-             */
 
             const response =
                 await fetchWithTimeout(
@@ -1253,13 +1289,6 @@ submit.addEventListener(
                         method: "POST",
 
                         headers: {
-
-                            /*
-                             * Content-Type ни қўлда ёзмаймиз.
-                             *
-                             * Browser boundary ни ўзи қўяди.
-                             */
-
                             "X-Telegram-Init-Data":
                                 telegramInitData
                         },
@@ -1267,13 +1296,11 @@ submit.addEventListener(
                         body:
                             formData
                     },
-
                     30000
                 );
 
 
             let data;
-
 
             try {
 
@@ -1282,7 +1309,7 @@ submit.addEventListener(
 
             }
 
-            catch (error) {
+            catch {
 
                 throw new Error(
                     "Сервердан нотўғри жавоб келди."
@@ -1317,11 +1344,6 @@ submit.addEventListener(
                 "✅ ЮБОРИЛДИ";
 
 
-            /*
-             * 2.5 секунддан кейин
-             * камерага қайтарамиз.
-             */
-
             setTimeout(
                 async function () {
 
@@ -1344,10 +1366,8 @@ submit.addEventListener(
                     preview.src =
                         "";
 
-
                     preview.style.display =
                         "none";
-
 
                     camera.style.display =
                         "block";
@@ -1356,18 +1376,14 @@ submit.addEventListener(
                     takePhoto.style.display =
                         "block";
 
-
                     retake.style.display =
                         "none";
-
 
                     submit.style.display =
                         "none";
 
-
                     comment.style.display =
                         "none";
-
 
                     photoInfo.style.display =
                         "none";
@@ -1380,7 +1396,6 @@ submit.addEventListener(
                     submit.disabled =
                         false;
 
-
                     submit.textContent =
                         "✅ ЮБОРИШ";
 
@@ -1388,15 +1403,24 @@ submit.addEventListener(
                     errorBox.textContent =
                         "";
 
-
                     successBox.textContent =
                         "";
 
 
-                    await startCamera();
+                    try {
+
+                        await startCamera();
+
+                    }
+
+                    catch (error) {
+
+                        showError(
+                            error.message
+                        );
+                    }
 
                 },
-
                 2500
             );
 
@@ -1415,8 +1439,7 @@ submit.addEventListener(
             ) {
 
                 showError(
-                    "❌ Расм юбориш вақти тугади. " +
-                    "Қайта уриниб кўринг."
+                    "❌ Расм юбориш вақти тугади. Қайта уриниб кўринг."
                 );
 
             }
@@ -1436,10 +1459,127 @@ submit.addEventListener(
             submit.disabled =
                 false;
 
-
             submit.textContent =
                 "✅ ЮБОРИШ";
         }
+    }
+);
+
+
+/* =========================================================
+   FILE FALLBACK
+========================================================= */
+
+fileInput.addEventListener(
+    "change",
+    function () {
+
+        const file =
+            fileInput.files &&
+            fileInput.files[0];
+
+
+        if (!file) {
+            return;
+        }
+
+
+        if (
+            !file.type.startsWith("image/")
+        ) {
+
+            showError(
+                "❌ Фақат расм файл танланг."
+            );
+
+            return;
+        }
+
+
+        capturedBlob =
+            file;
+
+
+        const objectUrl =
+            URL.createObjectURL(
+                file
+            );
+
+
+        if (
+            preview.dataset.objectUrl
+        ) {
+
+            URL.revokeObjectURL(
+                preview.dataset.objectUrl
+            );
+        }
+
+
+        preview.dataset.objectUrl =
+            objectUrl;
+
+        preview.src =
+            objectUrl;
+
+
+        const dt =
+            getDateTime();
+
+
+        captureDate =
+            dt.date;
+
+        captureTime =
+            dt.time;
+
+
+        const branch =
+            employee
+                ? (
+                    employee.branchName ||
+                    employee.branch_name ||
+                    "Номаълум"
+                )
+                : "Номаълум";
+
+
+        infoBranch.textContent =
+            branch;
+
+        infoDate.textContent =
+            captureDate;
+
+        infoTime.textContent =
+            captureTime;
+
+
+        camera.style.display =
+            "none";
+
+        preview.style.display =
+            "block";
+
+
+        takePhoto.style.display =
+            "none";
+
+        retake.style.display =
+            "block";
+
+        submit.style.display =
+            "block";
+
+        comment.style.display =
+            "block";
+
+        photoInfo.style.display =
+            "block";
+
+
+        showSuccess(
+            "✅ Расм танланди."
+        );
     }
 );
 
@@ -1457,12 +1597,12 @@ window.addEventListener(
             stream
                 .getTracks()
                 .forEach(
-                    function (track) {
-                        track.stop();
-                    }
+                    track =>
+                        track.stop()
                 );
 
-            stream = null;
+            stream =
+                null;
         }
 
 
