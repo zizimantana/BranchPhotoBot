@@ -1,5 +1,4 @@
 import asyncio
-import base64
 import hashlib
 import hmac
 import html
@@ -40,7 +39,7 @@ ADMIN_ID_RAW = os.getenv("ADMIN_ID")
 
 WEBAPP_URL = os.getenv(
     "WEBAPP_URL",
-    "https://tough-urgent-cancel-settle.trycloudflare.com",
+    "https://branchphotobot.onrender.com",
 )
 
 if not BOT_TOKEN:
@@ -1899,71 +1898,61 @@ async def api_submit_photo(
     try:
 
         # =============================================
-        # JSON PHOTO UPLOAD
+        # MULTIPART
         # =============================================
 
-        # Telegram Mini App WebView баъзи қурилмаларда multipart
-        # FormData файлни бўш қабул қилиши мумкин. Шунинг учун
-        # фото base64 JSON сифатида қабул қилинади.
-        try:
-            payload = await request.json()
-        except Exception:
+        reader = await request.multipart()
+
+
+        image_field = None
+        image_bytes = None
+
+        comment = ""
+
+        device_time_raw = ""
+
+
+        async for field in reader:
+
+            if field.name == "photo":
+
+                # Энг муҳим жой: multipart parser кейинги field'га
+                # ўтишидан олдин photo маълумотини тўлиқ ўқиймиз.
+                image_bytes = await field.read()
+                image_field = True
+
+                print(
+                    "MULTIPART PHOTO READ:",
+                    len(image_bytes),
+                    "bytes"
+                )
+
+
+            elif field.name == "comment":
+
+                comment = (
+                    await field.text()
+                ).strip()
+
+
+            elif field.name == "deviceTimestamp":
+
+                device_time_raw = (
+                    await field.text()
+                ).strip()
+
+
+        if image_field is None or not image_bytes:
+
             return json_response(
                 {
                     "ok": False,
-                    "error": "Фото маълумотлари нотўғри юборилди."
+                    "error":
+                        "Расм маълумотлари бўш."
                 },
                 400
             )
 
-        image_data = payload.get("photo", "")
-        comment = str(payload.get("comment", "")).strip()
-        device_time_raw = str(payload.get("deviceTimestamp", "")).strip()
-
-        if not image_data:
-            return json_response(
-                {
-                    "ok": False,
-                    "error": "Расм маълумотлари бўш."
-                },
-                400
-            )
-
-        # data:image/jpeg;base64,... ёки оддий base64 қабул қиламиз
-        if isinstance(image_data, str) and image_data.startswith("data:"):
-            try:
-                image_data = image_data.split(",", 1)[1]
-            except Exception:
-                image_data = ""
-
-        try:
-            image_bytes = base64.b64decode(
-                image_data,
-                validate=True
-            )
-        except Exception:
-            return json_response(
-                {
-                    "ok": False,
-                    "error": "Расм маълумотларини ўқиб бўлмади."
-                },
-                400
-            )
-
-        print(
-            "BASE64 PHOTO READ:",
-            len(image_bytes),
-            "bytes"
-        )
-
-        if not image_bytes:
-            return json_response(
-                {
-                    "ok": False,
-                    "error": "Расм маълумотлари бўш."
-                },
-                400
-            )
 
         # =============================================
         # DEVICE TIME
