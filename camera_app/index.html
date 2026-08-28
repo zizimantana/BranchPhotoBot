@@ -1,141 +1,169 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta charset="UTF-8">
 
-<title>Branch Photo Control</title>
+    <meta
+        name="viewport"
+        content="width=device-width,
+                 initial-scale=1,
+                 maximum-scale=1,
+                 user-scalable=no"
+    >
 
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Branch Photo Control</title>
 
-<style>
-* {
-    box-sizing: border-box;
-}
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-body {
-    margin: 0;
-    background: #111;
-    color: #fff;
-    font-family: Arial, sans-serif;
-}
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-.app {
-    width: 100%;
-    max-width: 520px;
-    margin: auto;
-    padding: 18px;
-}
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100%;
+        }
 
-h1 {
-    text-align: center;
-    font-size: 25px;
-    margin: 5px 0 14px;
-}
+        body {
+            background: #111;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
 
-.branch {
-    background: #222;
-    border-radius: 14px;
-    padding: 18px;
-    margin-bottom: 18px;
-    text-align: center;
-    font-size: 18px;
-}
+        .app {
+            width: 100%;
+            max-width: 520px;
+            margin: 0 auto;
+            padding: 18px;
+        }
 
-video,
-#preview {
-    width: 100%;
-    display: block;
-    border-radius: 15px;
-    background: #000;
-}
+        h1 {
+            text-align: center;
+            font-size: 25px;
+            margin: 5px 0 14px;
+        }
 
-#preview {
-    display: none;
-}
+        .branch {
+            background: #222;
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 18px;
+            text-align: center;
+            font-size: 18px;
+        }
 
-canvas {
-    display: none;
-}
+        video,
+        #preview {
+            width: 100%;
+            display: block;
+            border-radius: 15px;
+            background: #000;
+        }
 
-button {
-    width: 100%;
-    border: 0;
-    border-radius: 14px;
-    padding: 17px;
-    margin-top: 14px;
-    font-size: 18px;
-    font-weight: bold;
-    color: #fff;
-}
+        video {
+            min-height: 250px;
+            object-fit: cover;
+        }
 
-#takePhoto {
-    background: #2196f3;
-}
+        #preview {
+            display: none;
+        }
 
-#retake {
-    display: none;
-    background: #555;
-}
+        canvas {
+            display: none;
+        }
 
-#submit {
-    display: none;
-    background: #16a34a;
-}
+        button {
+            width: 100%;
+            border: 0;
+            border-radius: 14px;
+            padding: 17px;
+            margin-top: 14px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+        }
 
-textarea {
-    width: 100%;
-    min-height: 110px;
-    margin-top: 14px;
-    padding: 15px;
-    border-radius: 14px;
-    border: 1px solid #444;
-    background: #222;
-    color: #fff;
-    font-size: 17px;
-    resize: vertical;
-    display: none;
-}
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
 
-.info {
-    background: #222;
-    border-radius: 14px;
-    padding: 17px;
-    margin-top: 14px;
-    line-height: 1.8;
-    font-size: 17px;
-    display: none;
-}
+        #takePhoto {
+            background: #2196f3;
+        }
 
-.error {
-    color: #ff5c5c;
-    text-align: center;
-    font-size: 16px;
-    margin-top: 15px;
-}
+        #retake {
+            display: none;
+            background: #555;
+        }
 
-.success {
-    color: #22c55e;
-    text-align: center;
-    font-size: 17px;
-    margin-top: 15px;
-}
+        #submit {
+            display: none;
+            background: #16a34a;
+        }
 
-.loading {
-    text-align: center;
-    color: #aaa;
-    margin: 15px 0;
-    min-height: 24px;
-}
+        textarea {
+            width: 100%;
+            min-height: 110px;
+            margin-top: 14px;
+            padding: 15px;
+            border-radius: 14px;
+            border: 1px solid #444;
+            background: #222;
+            color: #fff;
+            font-size: 17px;
+            resize: vertical;
+            display: none;
+        }
 
-.small {
-    color: #888;
-    text-align: center;
-    font-size: 13px;
-    margin-top: 10px;
-}
-</style>
+        .info {
+            background: #222;
+            border-radius: 14px;
+            padding: 17px;
+            margin-top: 14px;
+            line-height: 1.8;
+            font-size: 17px;
+            display: none;
+        }
+
+        .error {
+            color: #ff5c5c;
+            text-align: center;
+            font-size: 16px;
+            margin-top: 15px;
+            line-height: 1.5;
+        }
+
+        .success {
+            color: #22c55e;
+            text-align: center;
+            font-size: 17px;
+            margin-top: 15px;
+            line-height: 1.5;
+        }
+
+        .loading {
+            text-align: center;
+            color: #aaa;
+            margin: 15px 0;
+            min-height: 24px;
+            line-height: 1.5;
+        }
+
+        .small {
+            color: #777;
+            text-align: center;
+            font-size: 12px;
+            margin-top: 10px;
+            word-break: break-word;
+        }
+    </style>
 </head>
 
 <body>
@@ -146,7 +174,9 @@ textarea {
 
     <div class="branch">
         🏢 Филиал:
-        <strong id="branchName">Юкланмоқда...</strong>
+        <strong id="branchName">
+            Юкланмоқда...
+        </strong>
     </div>
 
     <div id="loading" class="loading">
@@ -164,18 +194,22 @@ textarea {
 
     <img
         id="preview"
-        alt="Captured photo">
+        alt="Captured photo"
+    >
 
-    <button id="takePhoto">
+    <button id="takePhoto" disabled>
         📸 РАСМГА ОЛИШ
     </button>
 
     <textarea
         id="comment"
-        placeholder="Изоҳ киритинг...">
-    </textarea>
+        placeholder="Изоҳ киритинг..."
+    ></textarea>
 
-    <div class="info" id="photoInfo">
+    <div
+        class="info"
+        id="photoInfo"
+    >
 
         <div>
             🏢 Филиал:
@@ -202,11 +236,20 @@ textarea {
         ✅ ЮБОРИШ
     </button>
 
-    <div id="error" class="error"></div>
+    <div
+        id="error"
+        class="error">
+    </div>
 
-    <div id="success" class="success"></div>
+    <div
+        id="success"
+        class="success">
+    </div>
 
-    <div id="debug" class="small"></div>
+    <div
+        id="debug"
+        class="small">
+    </div>
 
 </div>
 
@@ -215,9 +258,9 @@ textarea {
 "use strict";
 
 
-/* =========================================
-   TELEGRAM
-========================================= */
+/* =========================================================
+   TELEGRAM MINI APP
+========================================================= */
 
 const tg =
     window.Telegram &&
@@ -228,16 +271,23 @@ const tg =
 
 if (tg) {
 
-    tg.ready();
+    try {
+        tg.ready();
+    } catch (e) {
+        console.error("tg.ready error:", e);
+    }
 
-    tg.expand();
-
+    try {
+        tg.expand();
+    } catch (e) {
+        console.error("tg.expand error:", e);
+    }
 }
 
 
-/* =========================================
+/* =========================================================
    VARIABLES
-========================================= */
+========================================================= */
 
 let stream = null;
 
@@ -252,9 +302,9 @@ let captureDate = "";
 let captureTime = "";
 
 
-/* =========================================
+/* =========================================================
    ELEMENTS
-========================================= */
+========================================================= */
 
 const branchName =
     document.getElementById("branchName");
@@ -305,9 +355,9 @@ const debug =
     document.getElementById("debug");
 
 
-/* =========================================
+/* =========================================================
    ERROR
-========================================= */
+========================================================= */
 
 function showError(text) {
 
@@ -318,9 +368,9 @@ function showError(text) {
 }
 
 
-/* =========================================
+/* =========================================================
    SUCCESS
-========================================= */
+========================================================= */
 
 function showSuccess(text) {
 
@@ -331,9 +381,9 @@ function showSuccess(text) {
 }
 
 
-/* =========================================
+/* =========================================================
    DATE / TIME
-========================================= */
+========================================================= */
 
 function getDateTime() {
 
@@ -358,16 +408,15 @@ function getDateTime() {
         String(now.getSeconds()).padStart(2, "0");
 
     return {
-        date,
-        time
+        date: date,
+        time: time
     };
-
 }
 
 
-/* =========================================
+/* =========================================================
    FETCH WITH TIMEOUT
-========================================= */
+========================================================= */
 
 function fetchWithTimeout(
     url,
@@ -380,7 +429,9 @@ function fetchWithTimeout(
 
     const timer =
         setTimeout(
-            () => controller.abort(),
+            function () {
+                controller.abort();
+            },
             timeout
         );
 
@@ -391,15 +442,42 @@ function fetchWithTimeout(
             signal: controller.signal
         }
     ).finally(
-        () => clearTimeout(timer)
+        function () {
+            clearTimeout(timer);
+        }
     );
-
 }
 
 
-/* =========================================
+/* =========================================================
+   GET TELEGRAM INIT DATA
+========================================================= */
+
+function getTelegramInitData() {
+
+    if (!tg) {
+        return "";
+    }
+
+    try {
+
+        return tg.initData || "";
+
+    } catch (error) {
+
+        console.error(
+            "INIT DATA ERROR:",
+            error
+        );
+
+        return "";
+    }
+}
+
+
+/* =========================================================
    LOAD USER
-========================================= */
+========================================================= */
 
 async function initAndLoadUser() {
 
@@ -417,12 +495,40 @@ async function initAndLoadUser() {
     }
 
 
-    telegramInitData =
-        tg.initData || "";
+    /*
+       Telegram баъзи қурилмаларда initData ни
+       script ишга тушган биринчи миллисекундда бермаслиги мумкин.
+
+       Шунинг учун бир неча марта текширамиз.
+    */
+
+    let attempts = 0;
+
+    while (
+        attempts < 10 &&
+        !telegramInitData
+    ) {
+
+        telegramInitData =
+            getTelegramInitData();
+
+        if (telegramInitData) {
+            break;
+        }
+
+        attempts++;
+
+        await new Promise(
+            function (resolve) {
+                setTimeout(resolve, 300);
+            }
+        );
+    }
 
 
     console.log(
-        "Telegram WebApp ready"
+        "Telegram WebApp:",
+        tg
     );
 
     console.log(
@@ -437,7 +543,7 @@ async function initAndLoadUser() {
 
         showError(
             "❌ Telegram маълумотлари келмади. " +
-            "Ботдаги 📸 РАСМГА ОЛИШ тугмаси орқали очинг."
+            "Mini App'ни ботдаги 📸 РАСМГА ОЛИШ тугмаси орқали очинг."
         );
 
         takePhoto.disabled = true;
@@ -477,7 +583,7 @@ async function initAndLoadUser() {
             data =
                 await response.json();
 
-        } catch {
+        } catch (error) {
 
             throw new Error(
                 "Сервердан нотўғри жавоб келди."
@@ -501,7 +607,6 @@ async function initAndLoadUser() {
                 data.error ||
                 "Фойдаланувчи аниқланмади."
             );
-
         }
 
 
@@ -531,7 +636,7 @@ async function initAndLoadUser() {
 
 
         setTimeout(
-            () => {
+            function () {
                 successBox.textContent = "";
             },
             2000
@@ -540,8 +645,9 @@ async function initAndLoadUser() {
 
         await startCamera();
 
+    }
 
-    } catch (error) {
+    catch (error) {
 
         console.error(
             "INIT ERROR:",
@@ -562,7 +668,9 @@ async function initAndLoadUser() {
                 "Mini App'ни ёпиб қайта очинг."
             );
 
-        } else {
+        }
+
+        else {
 
             showError(
                 "❌ " +
@@ -577,15 +685,13 @@ async function initAndLoadUser() {
 
         takePhoto.disabled =
             true;
-
     }
-
 }
 
 
-/* =========================================
+/* =========================================================
    CAMERA
-========================================= */
+========================================================= */
 
 async function startCamera() {
 
@@ -609,11 +715,12 @@ async function startCamera() {
             stream
                 .getTracks()
                 .forEach(
-                    track => track.stop()
+                    function (track) {
+                        track.stop();
+                    }
                 );
 
             stream = null;
-
         }
 
 
@@ -645,8 +752,9 @@ async function startCamera() {
 
         await camera.play();
 
+    }
 
-    } catch (error) {
+    catch (error) {
 
         console.error(
             "CAMERA ERROR:",
@@ -658,15 +766,13 @@ async function startCamera() {
             "❌ Камерага рухсат берилмади. " +
             "Telegram камера рухсатини ёқинг."
         );
-
     }
-
 }
 
 
-/* =========================================
+/* =========================================================
    TAKE PHOTO
-========================================= */
+========================================================= */
 
 takePhoto.addEventListener(
     "click",
@@ -727,6 +833,16 @@ takePhoto.addEventListener(
             canvas.getContext("2d");
 
 
+        if (!ctx) {
+
+            showError(
+                "❌ Canvas ишламади."
+            );
+
+            return;
+        }
+
+
         ctx.drawImage(
             camera,
             0,
@@ -747,7 +863,9 @@ takePhoto.addEventListener(
             dt.time;
 
 
-        /* WATERMARK */
+        /* =================================================
+           WATERMARK
+        ================================================= */
 
         const boxHeight =
             Math.max(
@@ -786,7 +904,7 @@ takePhoto.addEventListener(
 
 
         ctx.fillStyle =
-            "white";
+            "#ffffff";
 
 
         const padding =
@@ -872,7 +990,6 @@ takePhoto.addEventListener(
                     URL.revokeObjectURL(
                         preview.dataset.objectUrl
                     );
-
                 }
 
 
@@ -930,17 +1047,18 @@ takePhoto.addEventListener(
                     captureTime;
 
             },
+
             "image/jpeg",
+
             0.92
         );
-
     }
 );
 
 
-/* =========================================
+/* =========================================================
    RETAKE
-========================================= */
+========================================================= */
 
 retake.addEventListener(
     "click",
@@ -959,7 +1077,6 @@ retake.addEventListener(
             );
 
             delete preview.dataset.objectUrl;
-
         }
 
 
@@ -1012,14 +1129,13 @@ retake.addEventListener(
 
 
         await startCamera();
-
     }
 );
 
 
-/* =========================================
+/* =========================================================
    SUBMIT PHOTO
-========================================= */
+========================================================= */
 
 submit.addEventListener(
     "click",
@@ -1069,10 +1185,8 @@ submit.addEventListener(
         errorBox.textContent =
             "";
 
-
         successBox.textContent =
             "";
-
 
         debug.textContent =
             "";
@@ -1080,37 +1194,57 @@ submit.addEventListener(
 
         try {
 
-            const photoBase64 =
-                await new Promise(
-                    (resolve, reject) => {
-
-                        const reader =
-                            new FileReader();
-
-
-                        reader.onload =
-                            () =>
-                                resolve(
-                                    reader.result
-                                );
+            /*
+             * MUHIM:
+             *
+             * bot.py:
+             *     await request.multipart()
+             *
+             * кутаяпти.
+             *
+             * Шунинг учун JSON эмас,
+             * FormData юборамиз.
+             */
 
 
-                        reader.onerror =
-                            () =>
-                                reject(
-                                    new Error(
-                                        "Расмни тайёрлаб бўлмади."
-                                    )
-                                );
+            const formData =
+                new FormData();
 
 
-                        reader.readAsDataURL(
-                            capturedBlob
-                        );
+            /*
+             * photo
+             */
 
-                    }
-                );
+            formData.append(
+                "photo",
+                capturedBlob,
+                "photo.jpg"
+            );
 
+
+            /*
+             * comment
+             */
+
+            formData.append(
+                "comment",
+                comment.value.trim()
+            );
+
+
+            /*
+             * deviceTimestamp
+             */
+
+            formData.append(
+                "deviceTimestamp",
+                new Date().toISOString()
+            );
+
+
+            /*
+             * POST
+             */
 
             const response =
                 await fetchWithTimeout(
@@ -1119,27 +1253,21 @@ submit.addEventListener(
                         method: "POST",
 
                         headers: {
-                            "Content-Type":
-                                "application/json",
+
+                            /*
+                             * Content-Type ни қўлда ёзмаймиз.
+                             *
+                             * Browser boundary ни ўзи қўяди.
+                             */
 
                             "X-Telegram-Init-Data":
                                 telegramInitData
                         },
 
                         body:
-                            JSON.stringify(
-                                {
-                                    photo:
-                                        photoBase64,
-
-                                    comment:
-                                        comment.value.trim(),
-
-                                    deviceTimestamp:
-                                        new Date().toISOString()
-                                }
-                            )
+                            formData
                     },
+
                     30000
                 );
 
@@ -1152,12 +1280,13 @@ submit.addEventListener(
                 data =
                     await response.json();
 
-            } catch {
+            }
+
+            catch (error) {
 
                 throw new Error(
                     "Сервердан нотўғри жавоб келди."
                 );
-
             }
 
 
@@ -1176,7 +1305,6 @@ submit.addEventListener(
                     data.error ||
                     "Расм юборилмади."
                 );
-
             }
 
 
@@ -1189,11 +1317,28 @@ submit.addEventListener(
                 "✅ ЮБОРИЛДИ";
 
 
+            /*
+             * 2.5 секунддан кейин
+             * камерага қайтарамиз.
+             */
+
             setTimeout(
                 async function () {
 
                     capturedBlob =
                         null;
+
+
+                    if (
+                        preview.dataset.objectUrl
+                    ) {
+
+                        URL.revokeObjectURL(
+                            preview.dataset.objectUrl
+                        );
+
+                        delete preview.dataset.objectUrl;
+                    }
 
 
                     preview.src =
@@ -1251,11 +1396,13 @@ submit.addEventListener(
                     await startCamera();
 
                 },
+
                 2500
             );
 
+        }
 
-        } catch (error) {
+        catch (error) {
 
             console.error(
                 "SUBMIT ERROR:",
@@ -1272,7 +1419,9 @@ submit.addEventListener(
                     "Қайта уриниб кўринг."
                 );
 
-            } else {
+            }
+
+            else {
 
                 showError(
                     "❌ " +
@@ -1281,7 +1430,6 @@ submit.addEventListener(
                         "Расм юборишда хатолик."
                     )
                 );
-
             }
 
 
@@ -1291,16 +1439,48 @@ submit.addEventListener(
 
             submit.textContent =
                 "✅ ЮБОРИШ";
-
         }
-
     }
 );
 
 
-/* =========================================
+/* =========================================================
+   CLEANUP
+========================================================= */
+
+window.addEventListener(
+    "beforeunload",
+    function () {
+
+        if (stream) {
+
+            stream
+                .getTracks()
+                .forEach(
+                    function (track) {
+                        track.stop();
+                    }
+                );
+
+            stream = null;
+        }
+
+
+        if (
+            preview.dataset.objectUrl
+        ) {
+
+            URL.revokeObjectURL(
+                preview.dataset.objectUrl
+            );
+        }
+    }
+);
+
+
+/* =========================================================
    START
-========================================= */
+========================================================= */
 
 initAndLoadUser();
 
