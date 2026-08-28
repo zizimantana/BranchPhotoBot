@@ -1,4 +1,3 @@
-
 import asyncio
 import os
 import html
@@ -1734,6 +1733,55 @@ async def admin_photos_handler(
 
 
 # =========================================================
+# API - REQUEST USER
+# =========================================================
+
+def request_user(request: web.Request):
+
+    # 1) Нормал вариант: Telegram signed initData.
+    init_data = request.headers.get(
+        "X-Telegram-Init-Data",
+        ""
+    )
+
+    user = webapp_user(
+        init_data
+    )
+
+    if user:
+        return user
+
+
+    # 2) Telegram WebView initData ни бўш берса,
+    # frontend initDataUnsafe.user.id юборади.
+    raw_user_id = request.headers.get(
+        "X-Telegram-User-ID",
+        ""
+    ).strip()
+
+    try:
+
+        user_id = int(raw_user_id)
+
+    except (TypeError, ValueError):
+
+        return None
+
+
+    employee = get_employee(
+        user_id
+    )
+
+    if not employee:
+        return None
+
+
+    return {
+        "id": user_id
+    }
+
+
+# =========================================================
 # API - USER
 # =========================================================
 
@@ -1741,14 +1789,8 @@ async def api_me(
     request: web.Request
 ):
 
-    init_data = request.headers.get(
-        "X-Telegram-Init-Data",
-        ""
-    )
-
-
-    user = webapp_user(
-        init_data
+    user = request_user(
+        request
     )
 
 
@@ -1828,14 +1870,8 @@ async def api_submit_photo(
     request: web.Request
 ):
 
-    init_data = request.headers.get(
-        "X-Telegram-Init-Data",
-        ""
-    )
-
-
-    user = webapp_user(
-        init_data
+    user = request_user(
+        request
     )
 
 

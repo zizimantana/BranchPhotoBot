@@ -336,6 +336,8 @@ let capturedBlob = null;
 
 let telegramInitData = "";
 
+let telegramUserIdFallback = "";
+
 let employee = null;
 
 let captureDate = "";
@@ -452,6 +454,40 @@ function getTelegramInitData() {
 }
 
 
+/*
+   Telegram айрим WebView ҳолатларида initData ни
+   бўш бериши мумкин, лекин user.id ни беради.
+*/
+function getTelegramUserIdFallback() {
+
+    if (!tg) {
+        return "";
+    }
+
+    try {
+
+        const user =
+            tg.initDataUnsafe &&
+            tg.initDataUnsafe.user
+                ? tg.initDataUnsafe.user
+                : null;
+
+        if (user && user.id) {
+            return String(user.id);
+        }
+
+    } catch (error) {
+
+        console.error(
+            "INIT USER ERROR:",
+            error
+        );
+    }
+
+    return "";
+}
+
+
 /* =========================================================
    DATE TIME
 ========================================================= */
@@ -556,6 +592,13 @@ async function initAndLoadUser() {
             break;
         }
 
+        telegramUserIdFallback =
+            getTelegramUserIdFallback();
+
+        if (telegramUserIdFallback) {
+            break;
+        }
+
         await new Promise(
             resolve =>
                 setTimeout(resolve, 300)
@@ -568,14 +611,22 @@ async function initAndLoadUser() {
         telegramInitData.length
     );
 
+    console.log(
+        "FALLBACK USER ID:",
+        telegramUserIdFallback
+    );
 
-    if (!telegramInitData) {
+
+    if (
+        !telegramInitData &&
+        !telegramUserIdFallback
+    ) {
 
         loading.style.display = "none";
 
         showError(
-            "❌ Telegram маълумотлари келмади. " +
-            "Ботдаги 📸 РАСМГА ОЛИШ тугмаси орқали очинг."
+            "❌ Telegram фойдаланувчиси аниқланмади. " +
+            "Mini App'ни Telegram ботдаги 📸 РАСМГА ОЛИШ тугмаси орқали очинг."
         );
 
         return;
@@ -596,7 +647,9 @@ async function initAndLoadUser() {
 
                     headers: {
                         "X-Telegram-Init-Data":
-                            telegramInitData
+                            telegramInitData,
+                        "X-Telegram-User-ID":
+                            telegramUserIdFallback
                     },
 
                     cache: "no-store"
@@ -1223,10 +1276,13 @@ submit.addEventListener(
         }
 
 
-        if (!telegramInitData) {
+        if (
+            !telegramInitData &&
+            !telegramUserIdFallback
+        ) {
 
             showError(
-                "❌ Telegram авторизацияси топилмади."
+                "❌ Telegram фойдаланувчиси топилмади."
             );
 
             return;
@@ -1290,7 +1346,9 @@ submit.addEventListener(
 
                         headers: {
                             "X-Telegram-Init-Data":
-                                telegramInitData
+                                telegramInitData,
+                            "X-Telegram-User-ID":
+                                telegramUserIdFallback
                         },
 
                         body:
