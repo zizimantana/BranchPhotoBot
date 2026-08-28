@@ -336,8 +336,6 @@ let capturedBlob = null;
 
 let telegramInitData = "";
 
-let telegramUserIdFallback = "";
-
 let employee = null;
 
 let captureDate = "";
@@ -405,6 +403,14 @@ const fileInput =
 
 
 /* =========================================================
+   URL AUTH FALLBACK
+========================================================= */
+
+const authQuery =
+    window.location.search || "";
+
+
+/* =========================================================
    ERROR
 ========================================================= */
 
@@ -451,40 +457,6 @@ function getTelegramInitData() {
 
         return "";
     }
-}
-
-
-/*
-   Telegram айрим WebView ҳолатларида initData ни
-   бўш бериши мумкин, лекин user.id ни беради.
-*/
-function getTelegramUserIdFallback() {
-
-    if (!tg) {
-        return "";
-    }
-
-    try {
-
-        const user =
-            tg.initDataUnsafe &&
-            tg.initDataUnsafe.user
-                ? tg.initDataUnsafe.user
-                : null;
-
-        if (user && user.id) {
-            return String(user.id);
-        }
-
-    } catch (error) {
-
-        console.error(
-            "INIT USER ERROR:",
-            error
-        );
-    }
-
-    return "";
 }
 
 
@@ -592,13 +564,6 @@ async function initAndLoadUser() {
             break;
         }
 
-        telegramUserIdFallback =
-            getTelegramUserIdFallback();
-
-        if (telegramUserIdFallback) {
-            break;
-        }
-
         await new Promise(
             resolve =>
                 setTimeout(resolve, 300)
@@ -611,22 +576,14 @@ async function initAndLoadUser() {
         telegramInitData.length
     );
 
-    console.log(
-        "FALLBACK USER ID:",
-        telegramUserIdFallback
-    );
 
-
-    if (
-        !telegramInitData &&
-        !telegramUserIdFallback
-    ) {
+    if (!telegramInitData) {
 
         loading.style.display = "none";
 
         showError(
-            "❌ Telegram фойдаланувчиси аниқланмади. " +
-            "Mini App'ни Telegram ботдаги 📸 РАСМГА ОЛИШ тугмаси орқали очинг."
+            "❌ Telegram маълумотлари келмади. " +
+            "Ботдаги 📸 РАСМГА ОЛИШ тугмаси орқали очинг."
         );
 
         return;
@@ -641,15 +598,13 @@ async function initAndLoadUser() {
 
         const response =
             await fetchWithTimeout(
-                "/api/me",
+                "/api/me" + authQuery,
                 {
                     method: "GET",
 
                     headers: {
                         "X-Telegram-Init-Data":
-                            telegramInitData,
-                        "X-Telegram-User-ID":
-                            telegramUserIdFallback
+                            telegramInitData
                     },
 
                     cache: "no-store"
@@ -1276,13 +1231,10 @@ submit.addEventListener(
         }
 
 
-        if (
-            !telegramInitData &&
-            !telegramUserIdFallback
-        ) {
+        if (!telegramInitData) {
 
             showError(
-                "❌ Telegram фойдаланувчиси топилмади."
+                "❌ Telegram авторизацияси топилмади."
             );
 
             return;
@@ -1340,15 +1292,13 @@ submit.addEventListener(
 
             const response =
                 await fetchWithTimeout(
-                    "/api/submit-photo",
+                    "/api/submit-photo" + authQuery,
                     {
                         method: "POST",
 
                         headers: {
                             "X-Telegram-Init-Data":
-                                telegramInitData,
-                            "X-Telegram-User-ID":
-                                telegramUserIdFallback
+                                telegramInitData
                         },
 
                         body:
