@@ -1,0 +1,6 @@
+.env
+database.db
+photos/
+cloudflared-windows-amd64.exe
+__pycache__/
+*.pyc

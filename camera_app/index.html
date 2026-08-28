@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,
+               initial-scale=1.0,
+               maximum-scale=1.0,
+               user-scalable=no">
+
+<title>Branch Photo Control</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #111;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+.app {
+    width: 100%;
+    max-width: 520px;
+    margin: auto;
+    padding: 18px;
+}
+
+h1 {
+    text-align: center;
+    font-size: 25px;
+    margin: 5px 0 14px;
+}
+
+.branch {
+    background: #222;
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 18px;
+    text-align: center;
+    font-size: 18px;
+}
+
+video,
+#preview {
+    width: 100%;
+    display: block;
+    border-radius: 15px;
+    background: black;
+}
+
+#preview {
+    display: none;
+}
+
+canvas {
+    display: none;
+}
+
+button {
+    width: 100%;
+    border: 0;
+    border-radius: 14px;
+    padding: 17px;
+    margin-top: 14px;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+}
+
+#takePhoto {
+    background: #2196f3;
+}
+
+#retake {
+    display: none;
+    background: #555;
+}
+
+#submit {
+    display: none;
+    background: #16a34a;
+}
+
+textarea {
+    width: 100%;
+    min-height: 110px;
+    margin-top: 14px;
+    padding: 15px;
+    border-radius: 14px;
+    border: 1px solid #444;
+    background: #222;
+    color: white;
+    font-size: 17px;
+    resize: vertical;
+    display: none;
+}
+
+.info {
+    background: #222;
+    border-radius: 14px;
+    padding: 17px;
+    margin-top: 14px;
+    line-height: 1.8;
+    font-size: 17px;
+    display: none;
+}
+
+.error {
+    color: #ff5c5c;
+    text-align: center;
+    font-size: 16px;
+    margin-top: 15px;
+}
+
+.success {
+    color: #22c55e;
+    text-align: center;
+    font-size: 17px;
+    margin-top: 15px;
+}
+
+.loading {
+    text-align: center;
+    color: #aaa;
+    margin: 15px 0;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <h1>📸 Branch Photo Control</h1>
+
+    <div class="branch">
+        🏢 Филиал:
+        <strong id="branchName">Юкланмоқда...</strong>
+    </div>
+
+    <div id="loading" class="loading">
+        Telegram маълумотлари текширилмоқда...
+    </div>
+
+    <video
+        id="camera"
+        autoplay
+        playsinline
+        muted>
+    </video>
+
+    <canvas id="canvas"></canvas>
+
+    <img
+        id="preview"
+        alt="Captured photo">
+
+    <button id="takePhoto">
+        📸 РАСМГА ОЛИШ
+    </button>
+
+    <textarea
+        id="comment"
+        placeholder="Изоҳ киритинг...">
+    </textarea>
+
+    <div class="info" id="photoInfo">
+
+        <div>
+            🏢 Филиал:
+            <span id="infoBranch"></span>
+        </div>
+
+        <div>
+            📅 Сана:
+            <span id="infoDate"></span>
+        </div>
+
+        <div>
+            🕐 Вақт:
+            <span id="infoTime"></span>
+        </div>
+
+    </div>
+
+    <button id="retake">
+        🔄 ҚАЙТА ОЛИШ
+    </button>
+
+    <button id="submit">
+        ✅ ЮБОРИШ
+    </button>
+
+    <div id="error" class="error"></div>
+
+    <div id="success" class="success"></div>
+
+</div>
+
+<script>
+
+/* =====================================================
+   TELEGRAM
+===================================================== */
+
+const tg = window.Telegram.WebApp;
+
+tg.ready();
+tg.expand();
+
+
+/* =====================================================
+   GLOBAL
+===================================================== */
+
+let stream = null;
+let capturedBlob = null;
+
+let telegramInitData = "";
+
+let employee = null;
+
+let captureDate = "";
+let captureTime = "";
+
+
+/* =====================================================
+   ELEMENTS
+===================================================== */
+
+const branchName =
+    document.getElementById("branchName");
+
+const loading =
+    document.getElementById("loading");
+
+const camera =
+    document.getElementById("camera");
+
+const canvas =
+    document.getElementById("canvas");
+
+const preview =
+    document.getElementById("preview");
+
+const takePhoto =
+    document.getElementById("takePhoto");
+
+const retake =
+    document.getElementById("retake");
+
+const submit =
+    document.getElementById("submit");
+
+const comment =
+    document.getElementById("comment");
+
+const photoInfo =
+    document.getElementById("photoInfo");
+
+const infoBranch =
+    document.getElementById("infoBranch");
+
+const infoDate =
+    document.getElementById("infoDate");
+
+const infoTime =
+    document.getElementById("infoTime");
+
+const errorBox =
+    document.getElementById("error");
+
+const successBox =
+    document.getElementById("success");
+
+
+/* =====================================================
+   ERROR
+===================================================== */
+
+function showError(text) {
+
+    errorBox.textContent = text;
+    successBox.textContent = "";
+
+}
+
+
+/* =====================================================
+   SUCCESS
+===================================================== */
+
+function showSuccess(text) {
+
+    successBox.textContent = text;
+    errorBox.textContent = "";
+
+}
+
+
+/* =====================================================
+   INIT TELEGRAM
+===================================================== */
+
+function initTelegram() {
+
+    telegramInitData = tg.initData || "";
+
+    console.log(
+        "Telegram WebApp:",
+        tg
+    );
+
+    console.log(
+        "initData length:",
+        telegramInitData.length
+    );
+
+    if (!telegramInitData) {
+
+        loading.style.display = "none";
+
+        showError(
+            "❌ Mini App Telegram ичида тўғри очилмаган."
+        );
+
+        takePhoto.disabled = true;
+
+        return false;
+    }
+
+    return true;
+}
+
+
+/* =====================================================
+   LOAD USER
+===================================================== */
+
+async function loadUser() {
+
+    if (!initTelegram()) {
+        return;
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/me",
+                {
+                    method: "GET",
+
+                    headers: {
+                        "X-Telegram-Init-Data":
+                            telegramInitData
+                    }
+                }
+            );
+
+        const data =
+            await response.json();
+
+        console.log(
+            "API /me:",
+            data
+        );
+
+        if (!response.ok || !data.ok) {
+
+            loading.style.display =
+                "none";
+
+            showError(
+                "❌ " +
+                (
+                    data.error ||
+                    "Фойдаланувчи аниқланмади."
+                )
+            );
+
+            takePhoto.disabled = true;
+
+            return;
+        }
+
+        employee = data.user;
+
+        branchName.textContent =
+            employee.branchName;
+
+        loading.style.display =
+            "none";
+
+        takePhoto.disabled = false;
+
+        showSuccess(
+            "✅ Филиал аниқланди."
+        );
+
+        setTimeout(
+            () => {
+                successBox.textContent = "";
+            },
+            2000
+        );
+
+        await startCamera();
+
+    } catch (error) {
+
+        console.error(error);
+
+        loading.style.display =
+            "none";
+
+        showError(
+            "❌ Сервер билан боғланиб бўлмади."
+        );
+    }
+}
+
+
+/* =====================================================
+   CAMERA
+===================================================== */
+
+async function startCamera() {
+
+    try {
+
+        if (
+            !navigator.mediaDevices ||
+            !navigator.mediaDevices.getUserMedia
+        ) {
+
+            showError(
+                "❌ Бу қурилмада камера API ишламайди."
+            );
+
+            return;
+        }
+
+        stream =
+            await navigator.mediaDevices
+                .getUserMedia({
+
+                    video: {
+                        facingMode: {
+                            ideal: "environment"
+                        },
+
+                        width: {
+                            ideal: 1920
+                        },
+
+                        height: {
+                            ideal: 1080
+                        }
+                    },
+
+                    audio: false
+                });
+
+        camera.srcObject = stream;
+
+        await camera.play();
+
+    } catch (error) {
+
+        console.error(
+            "CAMERA ERROR:",
+            error
+        );
+
+        showError(
+            "❌ Камерага рухсат берилмади. " +
+            "Telegram камера рухсатини ёқинг."
+        );
+    }
+}
+
+
+/* =====================================================
+   DATE TIME
+===================================================== */
+
+function getDateTime() {
+
+    const now =
+        new Date();
+
+    const date =
+        String(
+            now.getDate()
+        ).padStart(2, "0")
+        + "."
+        +
+        String(
+            now.getMonth() + 1
+        ).padStart(2, "0")
+        + "."
+        +
+        now.getFullYear();
+
+    const time =
+        String(
+            now.getHours()
+        ).padStart(2, "0")
+        + ":"
+        +
+        String(
+            now.getMinutes()
+        ).padStart(2, "0")
+        + ":"
+        +
+        String(
+            now.getSeconds()
+        ).padStart(2, "0");
+
+    return {
+        date,
+        time,
+        iso: now.toISOString()
+    };
+}
+
+
+/* =====================================================
+   TAKE PHOTO
+===================================================== */
+
+takePhoto.addEventListener(
+    "click",
+    function () {
+
+        errorBox.textContent = "";
+        successBox.textContent = "";
+
+        if (!employee) {
+
+            showError(
+                "❌ Ходим маълумотлари топилмади."
+            );
+
+            return;
+        }
+
+        if (!stream) {
+
+            showError(
+                "❌ Камера ҳали тайёр эмас."
+            );
+
+            return;
+        }
+
+        const width =
+            camera.videoWidth;
+
+        const height =
+            camera.videoHeight;
+
+        if (!width || !height) {
+
+            showError(
+                "❌ Камера тасвири тайёр эмас."
+            );
+
+            return;
+        }
+
+        canvas.width =
+            width;
+
+        canvas.height =
+            height;
+
+        const ctx =
+            canvas.getContext(
+                "2d"
+            );
+
+        ctx.drawImage(
+            camera,
+            0,
+            0,
+            width,
+            height
+        );
+
+
+        /* =========================
+           DATE TIME
+        ========================= */
+
+        const dt =
+            getDateTime();
+
+        captureDate =
+            dt.date;
+
+        captureTime =
+            dt.time;
+
+
+        /* =========================
+           WATERMARK
+        ========================= */
+
+        const boxHeight =
+            Math.max(
+                150,
+                Math.floor(
+                    height * 0.20
+                )
+            );
+
+        ctx.fillStyle =
+            "rgba(0,0,0,0.70)";
+
+        ctx.fillRect(
+            0,
+            height - boxHeight,
+            width,
+            boxHeight
+        );
+
+
+        const fontSize =
+            Math.max(
+                26,
+                Math.floor(
+                    width / 32
+                )
+            );
+
+        ctx.font =
+            "bold " +
+            fontSize +
+            "px Arial";
+
+        ctx.fillStyle =
+            "white";
+
+        const padding =
+            Math.max(
+                25,
+                Math.floor(
+                    width / 40
+                )
+            );
+
+        const lineHeight =
+            Math.floor(
+                fontSize * 1.25
+            );
+
+        const y1 =
+            height -
+            boxHeight +
+            padding +
+            lineHeight;
+
+        const y2 =
+            y1 +
+            lineHeight;
+
+        const y3 =
+            y2 +
+            lineHeight;
+
+
+        ctx.fillText(
+            "Branch: " +
+            employee.branchName,
+            padding,
+            y1
+        );
+
+        ctx.fillText(
+            "Date: " +
+            captureDate,
+            padding,
+            y2
+        );
+
+        ctx.fillText(
+            "Time: " +
+            captureTime,
+            padding,
+            y3
+        );
+
+
+        /* =========================
+           BLOB / PREVIEW
+        ========================= */
+
+        canvas.toBlob(
+            function (blob) {
+
+                if (!blob || blob.size === 0) {
+
+                    showError(
+                        "❌ Расм тайёрлашда хатолик: файл бўш."
+                    );
+
+                    return;
+                }
+
+                capturedBlob = blob;
+
+                console.log(
+                    "CAPTURED PHOTO:",
+                    blob.size,
+                    "bytes",
+                    blob.type
+                );
+
+                if (preview.dataset.objectUrl) {
+                    URL.revokeObjectURL(
+                        preview.dataset.objectUrl
+                    );
+                }
+
+                const objectUrl =
+                    URL.createObjectURL(blob);
+
+                preview.dataset.objectUrl =
+                    objectUrl;
+
+                preview.src = objectUrl;
+
+                camera.style.display = "none";
+                preview.style.display = "block";
+                takePhoto.style.display = "none";
+                retake.style.display = "block";
+                submit.style.display = "block";
+                comment.style.display = "block";
+                photoInfo.style.display = "block";
+
+                infoBranch.textContent =
+                    employee.branchName;
+
+                infoDate.textContent =
+                    captureDate;
+
+                infoTime.textContent =
+                    captureTime;
+
+            },
+            "image/jpeg",
+            0.92
+        );
+
+    }
+);
+
+
+/* =====================================================
+   RETAKE
+===================================================== */
+
+retake.addEventListener(
+    "click",
+    function () {
+
+        capturedBlob = null;
+
+        if (preview.dataset.objectUrl) {
+            URL.revokeObjectURL(
+                preview.dataset.objectUrl
+            );
+            delete preview.dataset.objectUrl;
+        }
+
+        preview.src = "";
+
+        preview.style.display =
+            "none";
+
+        camera.style.display =
+            "block";
+
+        takePhoto.style.display =
+            "block";
+
+        retake.style.display =
+            "none";
+
+        submit.style.display =
+            "none";
+
+        comment.style.display =
+            "none";
+
+        photoInfo.style.display =
+            "none";
+
+        comment.value = "";
+
+        errorBox.textContent = "";
+        successBox.textContent = "";
+
+    }
+);
+
+
+/* =====================================================
+   SUBMIT PHOTO
+===================================================== */
+
+submit.addEventListener("click", async function () {
+
+    if (!capturedBlob || capturedBlob.size === 0) {
+        showError("❌ Аввал расм олинг.");
+        return;
+    }
+
+    if (!telegramInitData) {
+        showError("❌ Telegram авторизацияси топилмади.");
+        return;
+    }
+
+    if (!employee) {
+        showError("❌ Ходим маълумотлари топилмади.");
+        return;
+    }
+
+    submit.disabled = true;
+    submit.textContent = "⏳ ЮБОРИЛМОҚДА...";
+    errorBox.textContent = "";
+    successBox.textContent = "";
+
+    try {
+        const photoBase64 = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(new Error("Расмни тайёрлаб бўлмади."));
+            reader.readAsDataURL(capturedBlob);
+        });
+
+        const response = await fetch("/api/submit-photo", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Telegram-Init-Data": telegramInitData
+            },
+            body: JSON.stringify({
+                photo: photoBase64,
+                comment: comment.value.trim(),
+                deviceTimestamp: new Date().toISOString()
+            })
+        });
+
+        let data;
+        try {
+            data = await response.json();
+        } catch {
+            throw new Error("Сервердан нотўғри жавоб келди.");
+        }
+
+        console.log("SUBMIT RESPONSE:", data);
+
+        if (!response.ok || !data.ok) {
+            throw new Error(data.error || "Расм юборилмади.");
+        }
+
+        showSuccess("✅ Расм муваффақиятли юборилди!");
+        submit.textContent = "✅ ЮБОРИЛДИ";
+
+        setTimeout(async function () {
+            capturedBlob = null;
+            preview.src = "";
+            preview.style.display = "none";
+            camera.style.display = "block";
+            takePhoto.style.display = "block";
+            retake.style.display = "none";
+            submit.style.display = "none";
+            comment.style.display = "none";
+            photoInfo.style.display = "none";
+            comment.value = "";
+            submit.disabled = false;
+            submit.textContent = "✅ ЮБОРИШ";
+            errorBox.textContent = "";
+            successBox.textContent = "";
+            await startCamera();
+        }, 2500);
+
+    } catch (error) {
+        console.error("SUBMIT ERROR:", error);
+        showError("❌ " + (error.message || "Расм юборишда хатолик."));
+        submit.disabled = false;
+        submit.textContent = "✅ ЮБОРИШ";
+    }
+});
+
+
+/* =====================================================
+   START
+===================================================== */
+
+loadUser();
+
+</script>
+
+</body>
+</html>
