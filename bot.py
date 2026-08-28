@@ -90,8 +90,11 @@ HOST = "0.0.0.0"
 
 PORT = int(
     os.getenv(
-        "WEB_PORT",
-        "8080"
+        "PORT",
+        os.getenv(
+            "WEB_PORT",
+            "8080"
+        )
     )
 )
 
@@ -563,23 +566,23 @@ def admin_keyboard():
         keyboard=[
             [
                 KeyboardButton(
-                    text="🏢 Филиал қўшиш"
+                    text="ЁЯПв ╨д╨╕╨╗╨╕╨░╨╗ ╥Ы╤Ю╤И╨╕╤И"
                 ),
                 KeyboardButton(
-                    text="🏢 Филиаллар"
-                ),
-            ],
-            [
-                KeyboardButton(
-                    text="👤 Ходим қўшиш"
-                ),
-                KeyboardButton(
-                    text="👥 Ходимлар"
+                    text="ЁЯПв ╨д╨╕╨╗╨╕╨░╨╗╨╗╨░╤А"
                 ),
             ],
             [
                 KeyboardButton(
-                    text="📸 Расмлар"
+                    text="ЁЯСд ╨е╨╛╨┤╨╕╨╝ ╥Ы╤Ю╤И╨╕╤И"
+                ),
+                KeyboardButton(
+                    text="ЁЯСе ╨е╨╛╨┤╨╕╨╝╨╗╨░╤А"
+                ),
+            ],
+            [
+                KeyboardButton(
+                    text="ЁЯУ╕ ╨а╨░╤Б╨╝╨╗╨░╤А"
                 ),
             ],
         ],
@@ -597,7 +600,7 @@ def employee_keyboard():
         keyboard=[
             [
                 KeyboardButton(
-                    text="📸 РАСМГА ОЛИШ",
+                    text="ЁЯУ╕ ╨а╨Р╨б╨Ь╨У╨Р ╨Ю╨Ы╨Ш╨и",
                     web_app=WebAppInfo(
                         url=WEBAPP_URL
                     )
@@ -605,10 +608,10 @@ def employee_keyboard():
             ],
             [
                 KeyboardButton(
-                    text="📂 Менинг расмларим"
+                    text="ЁЯУВ ╨Ь╨╡╨╜╨╕╨╜╨│ ╤А╨░╤Б╨╝╨╗╨░╤А╨╕╨╝"
                 ),
                 KeyboardButton(
-                    text="👤 Профиль"
+                    text="ЁЯСд ╨Я╤А╨╛╤Д╨╕╨╗╤М"
                 ),
             ],
         ],
@@ -637,8 +640,8 @@ async def start_handler(
     if is_admin(user_id):
 
         await message.answer(
-            "👑 <b>ADMIN PANEL</b>\n\n"
-            "Branch Photo Control'га хуш келдингиз.",
+            "ЁЯСС <b>ADMIN PANEL</b>\n\n"
+            "Branch Photo Control'╨│╨░ ╤Е╤Г╤И ╨║╨╡╨╗╨┤╨╕╨╜╨│╨╕╨╖.",
             reply_markup=admin_keyboard(),
             parse_mode="HTML"
         )
@@ -654,9 +657,9 @@ async def start_handler(
     if not employee:
 
         await message.answer(
-            "❌ Сизнинг аккаунтингиз "
-            "ҳали филиалга бириктирилмаган.\n\n"
-            "Администратор билан боғланинг."
+            "тЭМ ╨б╨╕╨╖╨╜╨╕╨╜╨│ ╨░╨║╨║╨░╤Г╨╜╤В╨╕╨╜╨│╨╕╨╖ "
+            "╥│╨░╨╗╨╕ ╤Д╨╕╨╗╨╕╨░╨╗╨│╨░ ╨▒╨╕╤А╨╕╨║╤В╨╕╤А╨╕╨╗╨╝╨░╨│╨░╨╜.\n\n"
+            "╨Р╨┤╨╝╨╕╨╜╨╕╤Б╤В╤А╨░╤В╨╛╤А ╨▒╨╕╨╗╨░╨╜ ╨▒╨╛╥У╨╗╨░╨╜╨╕╨╜╨│."
         )
 
         return
@@ -665,7 +668,7 @@ async def start_handler(
     if not employee["active"]:
 
         await message.answer(
-            "❌ Сизнинг аккаунтингиз фаол эмас."
+            "тЭМ ╨б╨╕╨╖╨╜╨╕╨╜╨│ ╨░╨║╨║╨░╤Г╨╜╤В╨╕╨╜╨│╨╕╨╖ ╤Д╨░╨╛╨╗ ╤Н╨╝╨░╤Б."
         )
 
         return
@@ -674,8 +677,8 @@ async def start_handler(
     if not employee["branch_active"]:
 
         await message.answer(
-            f"❌ <b>{html.escape(employee['branch_name'])}</b> "
-            "филиали фаол эмас.",
+            f"тЭМ <b>{html.escape(employee['branch_name'])}</b> "
+            "╤Д╨╕╨╗╨╕╨░╨╗╨╕ ╤Д╨░╨╛╨╗ ╤Н╨╝╨░╤Б.",
             parse_mode="HTML"
         )
 
@@ -686,13 +689,13 @@ async def start_handler(
 
 
     await message.answer(
-        f"👋 Салом, "
+        f"ЁЯСЛ ╨б╨░╨╗╨╛╨╝, "
         f"<b>{html.escape(employee['name'])}</b>!\n\n"
-        f"🏢 Филиал: "
+        f"ЁЯПв ╨д╨╕╨╗╨╕╨░╨╗: "
         f"<b>{html.escape(employee['branch_name'])}</b>\n"
-        f"📅 {current.strftime('%d.%m.%Y')}\n"
-        f"🕐 {current.strftime('%H:%M:%S')}\n\n"
-        "📸 Расм олиш учун тугмани босинг.",
+        f"ЁЯУЕ {current.strftime('%d.%m.%Y')}\n"
+        f"ЁЯХР {current.strftime('%H:%M:%S')}\n\n"
+        "ЁЯУ╕ ╨а╨░╤Б╨╝ ╨╛╨╗╨╕╤И ╤Г╤З╤Г╨╜ ╤В╤Г╨│╨╝╨░╨╜╨╕ ╨▒╨╛╤Б╨╕╨╜╨│.",
         reply_markup=employee_keyboard(),
         parse_mode="HTML"
     )
@@ -710,7 +713,7 @@ async def myid_handler(
 ):
 
     await message.answer(
-        "🆔 Сизнинг Telegram ID:\n\n"
+        "ЁЯЖФ ╨б╨╕╨╖╨╜╨╕╨╜╨│ Telegram ID:\n\n"
         f"<code>{message.from_user.id}</code>",
         parse_mode="HTML"
     )
@@ -721,7 +724,7 @@ async def myid_handler(
 # =========================================================
 
 @dp.message(
-    F.text == "🏢 Филиал қўшиш"
+    F.text == "ЁЯПв ╨д╨╕╨╗╨╕╨░╨╗ ╥Ы╤Ю╤И╨╕╤И"
 )
 async def add_branch_start(
     message: Message,
@@ -740,9 +743,9 @@ async def add_branch_start(
 
 
     await message.answer(
-        "🏢 Янги филиал номини ёзинг.\n\n"
-        "Масалан:\n"
-        "Фарғона Марказ"
+        "ЁЯПв ╨п╨╜╨│╨╕ ╤Д╨╕╨╗╨╕╨░╨╗ ╨╜╨╛╨╝╨╕╨╜╨╕ ╤С╨╖╨╕╨╜╨│.\n\n"
+        "╨Ь╨░╤Б╨░╨╗╨░╨╜:\n"
+        "╨д╨░╤А╥У╨╛╨╜╨░ ╨Ь╨░╤А╨║╨░╨╖"
     )
 
 
@@ -772,7 +775,7 @@ async def add_branch_finish(
     if len(name) < 2:
 
         await message.answer(
-            "❌ Филиал номи жуда қисқа."
+            "тЭМ ╨д╨╕╨╗╨╕╨░╨╗ ╨╜╨╛╨╝╨╕ ╨╢╤Г╨┤╨░ ╥Ы╨╕╤Б╥Ы╨░."
         )
 
         return
@@ -805,7 +808,7 @@ async def add_branch_finish(
         await state.clear()
 
         await message.answer(
-            "❌ Бу филиал аллақачон мавжуд.",
+            "тЭМ ╨С╤Г ╤Д╨╕╨╗╨╕╨░╨╗ ╨░╨╗╨╗╨░╥Ы╨░╤З╨╛╨╜ ╨╝╨░╨▓╨╢╤Г╨┤.",
             reply_markup=admin_keyboard()
         )
 
@@ -816,8 +819,8 @@ async def add_branch_finish(
 
 
     await message.answer(
-        f"✅ <b>Филиал қўшилди!</b>\n\n"
-        f"🏢 {html.escape(name)}",
+        f"тЬЕ <b>╨д╨╕╨╗╨╕╨░╨╗ ╥Ы╤Ю╤И╨╕╨╗╨┤╨╕!</b>\n\n"
+        f"ЁЯПв {html.escape(name)}",
         reply_markup=admin_keyboard(),
         parse_mode="HTML"
     )
@@ -828,7 +831,7 @@ async def add_branch_finish(
 # =========================================================
 
 @dp.message(
-    F.text == "🏢 Филиаллар"
+    F.text == "ЁЯПв ╨д╨╕╨╗╨╕╨░╨╗╨╗╨░╤А"
 )
 async def branches_handler(
     message: Message
@@ -852,7 +855,7 @@ async def branches_handler(
     if not branches:
 
         await message.answer(
-            "❌ Ҳали филиаллар қўшилмаган."
+            "тЭМ ╥▓╨░╨╗╨╕ ╤Д╨╕╨╗╨╕╨░╨╗╨╗╨░╤А ╥Ы╤Ю╤И╨╕╨╗╨╝╨░╨│╨░╨╜."
         )
 
         return
@@ -864,10 +867,10 @@ async def branches_handler(
     for branch in branches:
 
         status = (
-            "🟢"
+            "ЁЯЯв"
             if branch["active"]
             else
-            "🔴"
+            "ЁЯФ┤"
         )
 
 
@@ -887,8 +890,8 @@ async def branches_handler(
 
 
     await message.answer(
-        "🏢 <b>Филиаллар</b>\n\n"
-        "Керакли филиални танланг:",
+        "ЁЯПв <b>╨д╨╕╨╗╨╕╨░╨╗╨╗╨░╤А</b>\n\n"
+        "╨Ъ╨╡╤А╨░╨║╨╗╨╕ ╤Д╨╕╨╗╨╕╨░╨╗╨╜╨╕ ╤В╨░╨╜╨╗╨░╨╜╨│:",
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=buttons
         ),
@@ -912,7 +915,7 @@ async def branch_selected(
     ):
 
         await callback.answer(
-            "Рухсат йўқ."
+            "╨а╤Г╤Е╤Б╨░╤В ╨╣╤Ю╥Ы."
         )
 
         return
@@ -931,7 +934,7 @@ async def branch_selected(
     if not branch:
 
         await callback.answer(
-            "Филиал топилмади."
+            "╨д╨╕╨╗╨╕╨░╨╗ ╤В╨╛╨┐╨╕╨╗╨╝╨░╨┤╨╕."
         )
 
         return
@@ -958,10 +961,10 @@ async def branch_selected(
 
 
     status = (
-        "🟢 Фаол"
+        "ЁЯЯв ╨д╨░╨╛╨╗"
         if branch["active"]
         else
-        "🔴 Нофаол"
+        "ЁЯФ┤ ╨Э╨╛╤Д╨░╨╛╨╗"
     )
 
 
@@ -969,7 +972,7 @@ async def branch_selected(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="📸 Расмларни кўриш",
+                    text="ЁЯУ╕ ╨а╨░╤Б╨╝╨╗╨░╤А╨╜╨╕ ╨║╤Ю╤А╨╕╤И",
                     callback_data=(
                         f"photos_branch:{branch_id}"
                     )
@@ -977,7 +980,7 @@ async def branch_selected(
             ],
             [
                 InlineKeyboardButton(
-                    text="👥 Ходимлар",
+                    text="ЁЯСе ╨е╨╛╨┤╨╕╨╝╨╗╨░╤А",
                     callback_data=(
                         f"employees_branch:{branch_id}"
                     )
@@ -988,10 +991,10 @@ async def branch_selected(
 
 
     await callback.message.answer(
-        f"🏢 <b>{html.escape(branch['name'])}</b>\n\n"
-        f"Ҳолати: {status}\n"
-        f"👥 Ходимлар: {employees_count}\n"
-        f"📸 Расмлар: {photos_count}",
+        f"ЁЯПв <b>{html.escape(branch['name'])}</b>\n\n"
+        f"╥▓╨╛╨╗╨░╤В╨╕: {status}\n"
+        f"ЁЯСе ╨е╨╛╨┤╨╕╨╝╨╗╨░╤А: {employees_count}\n"
+        f"ЁЯУ╕ ╨а╨░╤Б╨╝╨╗╨░╤А: {photos_count}",
         reply_markup=keyboard,
         parse_mode="HTML"
     )
@@ -1016,7 +1019,7 @@ async def branch_photos(
     ):
 
         await callback.answer(
-            "Рухсат йўқ."
+            "╨а╤Г╤Е╤Б╨░╤В ╨╣╤Ю╥Ы."
         )
 
         return
@@ -1035,7 +1038,7 @@ async def branch_photos(
     if not branch:
 
         await callback.answer(
-            "Филиал топилмади."
+            "╨д╨╕╨╗╨╕╨░╨╗ ╤В╨╛╨┐╨╕╨╗╨╝╨░╨┤╨╕."
         )
 
         return
@@ -1056,8 +1059,8 @@ async def branch_photos(
     if not rows:
 
         await callback.message.answer(
-            f"📂 <b>{html.escape(branch['name'])}</b>\n\n"
-            "Ҳали бу филиалдан расм келмаган.",
+            f"ЁЯУВ <b>{html.escape(branch['name'])}</b>\n\n"
+            "╥▓╨░╨╗╨╕ ╨▒╤Г ╤Д╨╕╨╗╨╕╨░╨╗╨┤╨░╨╜ ╤А╨░╤Б╨╝ ╨║╨╡╨╗╨╝╨░╨│╨░╨╜.",
             parse_mode="HTML"
         )
 
@@ -1067,8 +1070,8 @@ async def branch_photos(
 
 
     await callback.message.answer(
-        f"📸 <b>{html.escape(branch['name'])}</b>\n\n"
-        f"Жами: {len(rows)}",
+        f"ЁЯУ╕ <b>{html.escape(branch['name'])}</b>\n\n"
+        f"╨Ц╨░╨╝╨╕: {len(rows)}",
         parse_mode="HTML"
     )
 
@@ -1096,12 +1099,12 @@ async def branch_photos(
 
 
         caption = (
-            f"🏢 <b>{html.escape(row['branch_name'])}</b>\n"
-            f"👤 Ходим: <b>{html.escape(row['employee_name'])}</b>\n"
-            f"📅 {dt.strftime('%d.%m.%Y')}\n"
-            f"🕐 {dt.strftime('%H:%M:%S')}\n"
-            f"📝 Изоҳ: "
-            f"{html.escape(row['comment'] or 'Йўқ')}"
+            f"ЁЯПв <b>{html.escape(row['branch_name'])}</b>\n"
+            f"ЁЯСд ╨е╨╛╨┤╨╕╨╝: <b>{html.escape(row['employee_name'])}</b>\n"
+            f"ЁЯУЕ {dt.strftime('%d.%m.%Y')}\n"
+            f"ЁЯХР {dt.strftime('%H:%M:%S')}\n"
+            f"ЁЯУЭ ╨Ш╨╖╨╛╥│: "
+            f"{html.escape(row['comment'] or '╨Щ╤Ю╥Ы')}"
         )
 
 
@@ -1133,7 +1136,7 @@ async def branch_photos(
 # =========================================================
 
 @dp.message(
-    F.text == "👤 Ходим қўшиш"
+    F.text == "ЁЯСд ╨е╨╛╨┤╨╕╨╝ ╥Ы╤Ю╤И╨╕╤И"
 )
 async def add_employee_start(
     message: Message,
@@ -1159,8 +1162,8 @@ async def add_employee_start(
     if not branches:
 
         await message.answer(
-            "❌ Аввал камида битта "
-            "фаол филиал қўшинг."
+            "тЭМ ╨Р╨▓╨▓╨░╨╗ ╨║╨░╨╝╨╕╨┤╨░ ╨▒╨╕╤В╤В╨░ "
+            "╤Д╨░╨╛╨╗ ╤Д╨╕╨╗╨╕╨░╨╗ ╥Ы╤Ю╤И╨╕╨╜╨│."
         )
 
         return
@@ -1172,11 +1175,11 @@ async def add_employee_start(
 
 
     await message.answer(
-        "👤 Ходимнинг Telegram ID "
-        "рақамини юборинг.\n\n"
-        "Ходим ўз Telegram'ида "
-        "/myid командасини юбориб,\n"
-        "чиққан рақамни сизга бериши мумкин."
+        "ЁЯСд ╨е╨╛╨┤╨╕╨╝╨╜╨╕╨╜╨│ Telegram ID "
+        "╤А╨░╥Ы╨░╨╝╨╕╨╜╨╕ ╤О╨▒╨╛╤А╨╕╨╜╨│.\n\n"
+        "╨е╨╛╨┤╨╕╨╝ ╤Ю╨╖ Telegram'╨╕╨┤╨░ "
+        "/myid ╨║╨╛╨╝╨░╨╜╨┤╨░╤Б╨╕╨╜╨╕ ╤О╨▒╨╛╤А╨╕╨▒,\n"
+        "╤З╨╕╥Ы╥Ы╨░╨╜ ╤А╨░╥Ы╨░╨╝╨╜╨╕ ╤Б╨╕╨╖╨│╨░ ╨▒╨╡╤А╨╕╤И╨╕ ╨╝╤Г╨╝╨║╨╕╨╜."
     )
 
 
@@ -1207,8 +1210,8 @@ async def employee_id_received(
     except ValueError:
 
         await message.answer(
-            "❌ Telegram ID рақам "
-            "бўлиши керак."
+            "тЭМ Telegram ID ╤А╨░╥Ы╨░╨╝ "
+            "╨▒╤Ю╨╗╨╕╤И╨╕ ╨║╨╡╤А╨░╨║."
         )
 
         return
@@ -1225,7 +1228,7 @@ async def employee_id_received(
 
 
     await message.answer(
-        "👤 Ходимнинг исмини ёзинг."
+        "ЁЯСд ╨е╨╛╨┤╨╕╨╝╨╜╨╕╨╜╨│ ╨╕╤Б╨╝╨╕╨╜╨╕ ╤С╨╖╨╕╨╜╨│."
     )
 
 
@@ -1255,7 +1258,7 @@ async def employee_name_received(
     if len(name) < 2:
 
         await message.answer(
-            "❌ Исм жуда қисқа."
+            "тЭМ ╨Ш╤Б╨╝ ╨╢╤Г╨┤╨░ ╥Ы╨╕╤Б╥Ы╨░."
         )
 
         return
@@ -1277,15 +1280,15 @@ async def employee_name_received(
 
 
     text = (
-        "🏢 Ходимни қайси филиалга "
-        "бириктирамиз?\n\n"
+        "ЁЯПв ╨е╨╛╨┤╨╕╨╝╨╜╨╕ ╥Ы╨░╨╣╤Б╨╕ ╤Д╨╕╨╗╨╕╨░╨╗╨│╨░ "
+        "╨▒╨╕╤А╨╕╨║╤В╨╕╤А╨░╨╝╨╕╨╖?\n\n"
     )
 
 
     for branch in branches:
 
         text += (
-            f"<b>{branch['id']}</b> — "
+            f"<b>{branch['id']}</b> тАФ "
             f"{html.escape(branch['name'])}\n"
         )
 
@@ -1297,7 +1300,7 @@ async def employee_name_received(
 
     await message.answer(
         text +
-        "\nФилиал ID рақамини юборинг.",
+        "\n╨д╨╕╨╗╨╕╨░╨╗ ID ╤А╨░╥Ы╨░╨╝╨╕╨╜╨╕ ╤О╨▒╨╛╤А╨╕╨╜╨│.",
         parse_mode="HTML"
     )
 
@@ -1329,8 +1332,8 @@ async def employee_branch_received(
     except ValueError:
 
         await message.answer(
-            "❌ Филиал ID рақам "
-            "бўлиши керак."
+            "тЭМ ╨д╨╕╨╗╨╕╨░╨╗ ID ╤А╨░╥Ы╨░╨╝ "
+            "╨▒╤Ю╨╗╨╕╤И╨╕ ╨║╨╡╤А╨░╨║."
         )
 
         return
@@ -1348,8 +1351,8 @@ async def employee_branch_received(
     ):
 
         await message.answer(
-            "❌ Бундай фаол филиал "
-            "топилмади."
+            "тЭМ ╨С╤Г╨╜╨┤╨░╨╣ ╤Д╨░╨╛╨╗ ╤Д╨╕╨╗╨╕╨░╨╗ "
+            "╤В╨╛╨┐╨╕╨╗╨╝╨░╨┤╨╕."
         )
 
         return
@@ -1399,8 +1402,8 @@ async def employee_branch_received(
 
 
         await message.answer(
-            "❌ Бу Telegram аккаунт "
-            "аллақачон ходим сифатида қўшилган.",
+            "тЭМ ╨С╤Г Telegram ╨░╨║╨║╨░╤Г╨╜╤В "
+            "╨░╨╗╨╗╨░╥Ы╨░╤З╨╛╨╜ ╤Е╨╛╨┤╨╕╨╝ ╤Б╨╕╤Д╨░╤В╨╕╨┤╨░ ╥Ы╤Ю╤И╨╕╨╗╨│╨░╨╜.",
             reply_markup=admin_keyboard()
         )
 
@@ -1411,10 +1414,10 @@ async def employee_branch_received(
 
 
     await message.answer(
-        "✅ <b>Ходим қўшилди!</b>\n\n"
-        f"👤 {html.escape(employee_name)}\n"
-        f"🏢 {html.escape(branch['name'])}\n"
-        f"🆔 {telegram_id}",
+        "тЬЕ <b>╨е╨╛╨┤╨╕╨╝ ╥Ы╤Ю╤И╨╕╨╗╨┤╨╕!</b>\n\n"
+        f"ЁЯСд {html.escape(employee_name)}\n"
+        f"ЁЯПв {html.escape(branch['name'])}\n"
+        f"ЁЯЖФ {telegram_id}",
         reply_markup=admin_keyboard(),
         parse_mode="HTML"
     )
@@ -1425,7 +1428,7 @@ async def employee_branch_received(
 # =========================================================
 
 @dp.message(
-    F.text == "👥 Ходимлар"
+    F.text == "ЁЯСе ╨е╨╛╨┤╨╕╨╝╨╗╨░╤А"
 )
 async def employees_handler(
     message: Message
@@ -1453,31 +1456,31 @@ async def employees_handler(
     if not rows:
 
         await message.answer(
-            "❌ Ҳали ходимлар қўшилмаган."
+            "тЭМ ╥▓╨░╨╗╨╕ ╤Е╨╛╨┤╨╕╨╝╨╗╨░╤А ╥Ы╤Ю╤И╨╕╨╗╨╝╨░╨│╨░╨╜."
         )
 
         return
 
 
-    text = "👥 <b>Ходимлар</b>\n\n"
+    text = "ЁЯСе <b>╨е╨╛╨┤╨╕╨╝╨╗╨░╤А</b>\n\n"
 
 
     for employee in rows:
 
         status = (
-            "🟢"
+            "ЁЯЯв"
             if employee["active"]
             else
-            "🔴"
+            "ЁЯФ┤"
         )
 
 
         text += (
             f"{status} "
             f"<b>{html.escape(employee['name'])}</b>\n"
-            f"🏢 "
+            f"ЁЯПв "
             f"{html.escape(employee['branch_name'])}\n"
-            f"🆔 {employee['telegram_id']}\n\n"
+            f"ЁЯЖФ {employee['telegram_id']}\n\n"
         )
 
 
@@ -1492,7 +1495,7 @@ async def employees_handler(
 # =========================================================
 
 @dp.message(
-    F.text == "👤 Профиль"
+    F.text == "ЁЯСд ╨Я╤А╨╛╤Д╨╕╨╗╤М"
 )
 async def profile_handler(
     message: Message
@@ -1506,20 +1509,20 @@ async def profile_handler(
     if not employee:
 
         await message.answer(
-            "❌ Сизнинг аккаунтингиз "
-            "топилмади."
+            "тЭМ ╨б╨╕╨╖╨╜╨╕╨╜╨│ ╨░╨║╨║╨░╤Г╨╜╤В╨╕╨╜╨│╨╕╨╖ "
+            "╤В╨╛╨┐╨╕╨╗╨╝╨░╨┤╨╕."
         )
 
         return
 
 
     await message.answer(
-        f"👤 <b>Профиль</b>\n\n"
-        f"Исм: "
+        f"ЁЯСд <b>╨Я╤А╨╛╤Д╨╕╨╗╤М</b>\n\n"
+        f"╨Ш╤Б╨╝: "
         f"{html.escape(employee['name'])}\n"
-        f"🏢 Филиал: "
+        f"ЁЯПв ╨д╨╕╨╗╨╕╨░╨╗: "
         f"{html.escape(employee['branch_name'])}\n"
-        f"🆔 Telegram ID: "
+        f"ЁЯЖФ Telegram ID: "
         f"{employee['telegram_id']}",
         parse_mode="HTML"
     )
@@ -1530,7 +1533,7 @@ async def profile_handler(
 # =========================================================
 
 @dp.message(
-    F.text == "📂 Менинг расмларим"
+    F.text == "ЁЯУВ ╨Ь╨╡╨╜╨╕╨╜╨│ ╤А╨░╤Б╨╝╨╗╨░╤А╨╕╨╝"
 )
 async def my_photos_handler(
     message: Message
@@ -1544,7 +1547,7 @@ async def my_photos_handler(
     if not employee:
 
         await message.answer(
-            "❌ Аккаунтингиз топилмади."
+            "тЭМ ╨Р╨║╨║╨░╤Г╨╜╤В╨╕╨╜╨│╨╕╨╖ ╤В╨╛╨┐╨╕╨╗╨╝╨░╨┤╨╕."
         )
 
         return
@@ -1565,14 +1568,14 @@ async def my_photos_handler(
     if not rows:
 
         await message.answer(
-            "📂 Ҳали расмларингиз йўқ."
+            "ЁЯУВ ╥▓╨░╨╗╨╕ ╤А╨░╤Б╨╝╨╗╨░╤А╨╕╨╜╨│╨╕╨╖ ╨╣╤Ю╥Ы."
         )
 
         return
 
 
     await message.answer(
-        f"📂 Сўнгги {len(rows)} та расм:"
+        f"ЁЯУВ ╨б╤Ю╨╜╨│╨│╨╕ {len(rows)} ╤В╨░ ╤А╨░╤Б╨╝:"
     )
 
 
@@ -1599,14 +1602,14 @@ async def my_photos_handler(
 
 
         caption = (
-            f"🏢 "
+            f"ЁЯПв "
             f"{html.escape(row['branch_name'])}\n"
-            f"📅 "
+            f"ЁЯУЕ "
             f"{dt.strftime('%d.%m.%Y')}\n"
-            f"🕐 "
+            f"ЁЯХР "
             f"{dt.strftime('%H:%M:%S')}\n"
-            f"📝 "
-            f"{html.escape(row['comment'] or 'Изоҳ йўқ')}"
+            f"ЁЯУЭ "
+            f"{html.escape(row['comment'] or '╨Ш╨╖╨╛╥│ ╨╣╤Ю╥Ы')}"
         )
 
 
@@ -1634,7 +1637,7 @@ async def my_photos_handler(
 # =========================================================
 
 @dp.message(
-    F.text == "📸 Расмлар"
+    F.text == "ЁЯУ╕ ╨а╨░╤Б╨╝╨╗╨░╤А"
 )
 async def admin_photos_handler(
     message: Message
@@ -1659,14 +1662,14 @@ async def admin_photos_handler(
     if not rows:
 
         await message.answer(
-            "📂 Ҳали расмлар келмаган."
+            "ЁЯУВ ╥▓╨░╨╗╨╕ ╤А╨░╤Б╨╝╨╗╨░╤А ╨║╨╡╨╗╨╝╨░╨│╨░╨╜."
         )
 
         return
 
 
     await message.answer(
-        f"📸 Сўнгги {len(rows)} та расм:"
+        f"ЁЯУ╕ ╨б╤Ю╨╜╨│╨│╨╕ {len(rows)} ╤В╨░ ╤А╨░╤Б╨╝:"
     )
 
 
@@ -1693,17 +1696,17 @@ async def admin_photos_handler(
 
 
         caption = (
-            "📸 <b>ЯНГИ РАСМ</b>\n\n"
-            f"🏢 Филиал: "
+            "ЁЯУ╕ <b>╨п╨Э╨У╨Ш ╨а╨Р╨б╨Ь</b>\n\n"
+            f"ЁЯПв ╨д╨╕╨╗╨╕╨░╨╗: "
             f"<b>{html.escape(row['branch_name'])}</b>\n"
-            f"👤 Ходим: "
+            f"ЁЯСд ╨е╨╛╨┤╨╕╨╝: "
             f"<b>{html.escape(row['employee_name'])}</b>\n"
-            f"📅 Сана: "
+            f"ЁЯУЕ ╨б╨░╨╜╨░: "
             f"{dt.strftime('%d.%m.%Y')}\n"
-            f"🕐 Вақт: "
+            f"ЁЯХР ╨Т╨░╥Ы╤В: "
             f"{dt.strftime('%H:%M:%S')}\n"
-            f"📝 Изоҳ: "
-            f"{html.escape(row['comment'] or 'Йўқ')}"
+            f"ЁЯУЭ ╨Ш╨╖╨╛╥│: "
+            f"{html.escape(row['comment'] or '╨Щ╤Ю╥Ы')}"
         )
 
 
@@ -1752,7 +1755,7 @@ async def api_me(
             {
                 "ok": False,
                 "error":
-                    "Telegram авторизацияси нотўғри."
+                    "Telegram ╨░╨▓╤В╨╛╤А╨╕╨╖╨░╤Ж╨╕╤П╤Б╨╕ ╨╜╨╛╤В╤Ю╥У╤А╨╕."
             },
             401
         )
@@ -1769,8 +1772,8 @@ async def api_me(
             {
                 "ok": False,
                 "error":
-                    "Аккаунтингиз филиалга "
-                    "бириктирилмаган."
+                    "╨Р╨║╨║╨░╤Г╨╜╤В╨╕╨╜╨│╨╕╨╖ ╤Д╨╕╨╗╨╕╨░╨╗╨│╨░ "
+                    "╨▒╨╕╤А╨╕╨║╤В╨╕╤А╨╕╨╗╨╝╨░╨│╨░╨╜."
             },
             403
         )
@@ -1782,7 +1785,7 @@ async def api_me(
             {
                 "ok": False,
                 "error":
-                    "Аккаунтингиз фаол эмас."
+                    "╨Р╨║╨║╨░╤Г╨╜╤В╨╕╨╜╨│╨╕╨╖ ╤Д╨░╨╛╨╗ ╤Н╨╝╨░╤Б."
             },
             403
         )
@@ -1794,7 +1797,7 @@ async def api_me(
             {
                 "ok": False,
                 "error":
-                    "Филиал ҳозир фаол эмас."
+                    "╨д╨╕╨╗╨╕╨░╨╗ ╥│╨╛╨╖╨╕╤А ╤Д╨░╨╛╨╗ ╤Н╨╝╨░╤Б."
             },
             403
         )
@@ -1839,7 +1842,7 @@ async def api_submit_photo(
             {
                 "ok": False,
                 "error":
-                    "Telegram авторизацияси нотўғри."
+                    "Telegram ╨░╨▓╤В╨╛╤А╨╕╨╖╨░╤Ж╨╕╤П╤Б╨╕ ╨╜╨╛╤В╤Ю╥У╤А╨╕."
             },
             401
         )
@@ -1861,8 +1864,8 @@ async def api_submit_photo(
             {
                 "ok": False,
                 "error":
-                    "Аккаунтингиз филиалга "
-                    "бириктирилмаган."
+                    "╨Р╨║╨║╨░╤Г╨╜╤В╨╕╨╜╨│╨╕╨╖ ╤Д╨╕╨╗╨╕╨░╨╗╨│╨░ "
+                    "╨▒╨╕╤А╨╕╨║╤В╨╕╤А╨╕╨╗╨╝╨░╨│╨░╨╜."
             },
             403
         )
@@ -1874,7 +1877,7 @@ async def api_submit_photo(
             {
                 "ok": False,
                 "error":
-                    "Аккаунтингиз фаол эмас."
+                    "╨Р╨║╨║╨░╤Г╨╜╤В╨╕╨╜╨│╨╕╨╖ ╤Д╨░╨╛╨╗ ╤Н╨╝╨░╤Б."
             },
             403
         )
@@ -1886,7 +1889,7 @@ async def api_submit_photo(
             {
                 "ok": False,
                 "error":
-                    "Филиал ҳозир фаол эмас."
+                    "╨д╨╕╨╗╨╕╨░╨╗ ╥│╨╛╨╖╨╕╤А ╤Д╨░╨╛╨╗ ╤Н╨╝╨░╤Б."
             },
             403
         )
@@ -1916,8 +1919,8 @@ async def api_submit_photo(
 
             if field.name == "photo":
 
-                # Энг муҳим жой: multipart parser кейинги field'га
-                # ўтишидан олдин photo маълумотини тўлиқ ўқиймиз.
+                # ╨н╨╜╨│ ╨╝╤Г╥│╨╕╨╝ ╨╢╨╛╨╣: multipart parser ╨║╨╡╨╣╨╕╨╜╨│╨╕ field'╨│╨░
+                # ╤Ю╤В╨╕╤И╨╕╨┤╨░╨╜ ╨╛╨╗╨┤╨╕╨╜ photo ╨╝╨░╤К╨╗╤Г╨╝╨╛╤В╨╕╨╜╨╕ ╤В╤Ю╨╗╨╕╥Ы ╤Ю╥Ы╨╕╨╣╨╝╨╕╨╖.
                 image_bytes = await field.read()
                 image_field = True
 
@@ -1948,7 +1951,7 @@ async def api_submit_photo(
                 {
                     "ok": False,
                     "error":
-                        "Расм маълумотлари бўш."
+                        "╨а╨░╤Б╨╝ ╨╝╨░╤К╨╗╤Г╨╝╨╛╤В╨╗╨░╤А╨╕ ╨▒╤Ю╤И."
                 },
                 400
             )
@@ -2017,7 +2020,7 @@ async def api_submit_photo(
                 {
                     "ok": False,
                     "error":
-                        "Расм ҳажми 15 MB дан катта."
+                        "╨а╨░╤Б╨╝ ╥│╨░╨╢╨╝╨╕ 15 MB ╨┤╨░╨╜ ╨║╨░╤В╤В╨░."
                 },
                 413
             )
@@ -2047,7 +2050,7 @@ async def api_submit_photo(
                 {
                     "ok": False,
                     "error":
-                        "Расм маълумотлари бўш."
+                        "╨а╨░╤Б╨╝ ╨╝╨░╤К╨╗╤Г╨╝╨╛╤В╨╗╨░╤А╨╕ ╨▒╤Ю╤И."
                 },
                 400
             )
@@ -2086,10 +2089,10 @@ async def api_submit_photo(
                     test_image.mode
                 )
 
-                # Расмни тўлиқ RAM'га юклаймиз
+                # ╨а╨░╤Б╨╝╨╜╨╕ ╤В╤Ю╨╗╨╕╥Ы RAM'╨│╨░ ╤О╨║╨╗╨░╨╣╨╝╨╕╨╖
                 test_image.load()
 
-                # RGB'га айлантириб текширамиз
+                # RGB'╨│╨░ ╨░╨╣╨╗╨░╨╜╤В╨╕╤А╨╕╨▒ ╤В╨╡╨║╤И╨╕╤А╨░╨╝╨╕╨╖
                 test_image.convert(
                     "RGB"
                 )
@@ -2113,7 +2116,7 @@ async def api_submit_photo(
                 {
                     "ok": False,
                     "error":
-                        "Расм файлини ўқиб бўлмади."
+                        "╨а╨░╤Б╨╝ ╤Д╨░╨╣╨╗╨╕╨╜╨╕ ╤Ю╥Ы╨╕╨▒ ╨▒╤Ю╨╗╨╝╨░╨┤╨╕."
                 },
                 400
             )
@@ -2223,17 +2226,17 @@ async def api_submit_photo(
         # =============================================
 
         caption = (
-            "📸 <b>ЯНГИ РАСМ</b>\n\n"
-            f"🏢 Филиал: "
+            "ЁЯУ╕ <b>╨п╨Э╨У╨Ш ╨а╨Р╨б╨Ь</b>\n\n"
+            f"ЁЯПв ╨д╨╕╨╗╨╕╨░╨╗: "
             f"<b>{html.escape(employee['branch_name'])}</b>\n"
-            f"👤 Ходим: "
+            f"ЁЯСд ╨е╨╛╨┤╨╕╨╝: "
             f"<b>{html.escape(employee['name'])}</b>\n"
-            f"📅 Сана: "
+            f"ЁЯУЕ ╨б╨░╨╜╨░: "
             f"{device_dt_local.strftime('%d.%m.%Y')}\n"
-            f"🕐 Вақт: "
+            f"ЁЯХР ╨Т╨░╥Ы╤В: "
             f"{device_dt_local.strftime('%H:%M:%S')}\n"
-            f"📝 Изоҳ: "
-            f"{html.escape(comment or 'Йўқ')}"
+            f"ЁЯУЭ ╨Ш╨╖╨╛╥│: "
+            f"{html.escape(comment or '╨Щ╤Ю╥Ы')}"
         )
 
 
@@ -2312,8 +2315,8 @@ async def api_submit_photo(
             {
                 "ok": False,
                 "error":
-                    "Расмни сақлашда "
-                    "сервер хатоси."
+                    "╨а╨░╤Б╨╝╨╜╨╕ ╤Б╨░╥Ы╨╗╨░╤И╨┤╨░ "
+                    "╤Б╨╡╤А╨▓╨╡╤А ╤Е╨░╤В╨╛╤Б╨╕."
             },
             500
         )
